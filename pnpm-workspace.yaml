@@ -1,0 +1,9 @@
+packages:
+  - "electron"
+  - "backend"
+  - "frontend"
+allowBuilds:
+  '@embedded-postgres/windows-x64': true
+  '@prisma/engines': true
+  electron-winstaller: true
+  prisma: true
