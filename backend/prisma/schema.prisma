@@ -1,0 +1,143 @@
+generator client {
+    provider = "prisma-client"
+    output = "../src/generated/prisma"
+}
+
+datasource db{
+    provider = "postgresql"
+}
+
+// =========================================
+// PACIENTES
+// =========================================
+
+model Paciente {
+    id_paciente             Int         @id @default(autoincrement())
+    nombres                 String
+    apellidos               String
+    fecha_nacimiento        DateTime
+    sexo                    String      @db.Char(1)  
+    cedula                  String?     @unique
+    direccion               String
+    telefono                String
+    fecha_primera_consulta  DateTime
+    lugar_nacimiento        String
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    contactos             Contacto[]
+    antecedentes          Antecedente[]
+    consultas             Consulta[]
+
+    @@map("pacientes")
+}
+
+// =========================================
+// CONTACTO (contacto de emergencia)
+// =========================================
+
+model Contacto{
+    id_contacto             Int         @id @default(autoincrement())
+    nombres                 String
+    relacion                String
+    telefono                String
+
+    id_paciente             Int
+    paciente                Paciente    @relation(fields: [id_paciente], references: [id_paciente])
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    @@map("contactos")
+}
+
+// =========================================
+// ANTECEDENTES
+// =========================================
+
+model Antecedente{
+    id_antecedentes         Int          @id @default(autoincrement())
+    tipo                    String       //"Familiar" | "Personal" | "GO"
+    descripcion             String
+
+    id_paciente             Int
+    paciente                Paciente    @relation(fields: [id_paciente], references: [id_paciente])
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    @@map("antecedentes")
+}
+
+// =========================================
+// CONSULTA
+// =========================================
+
+model Consulta{
+    id_consulta             Int         @id @default(autoincrement())
+    fecha                   DateTime
+    peso                    Decimal     @db.Decimal(5,2)    //kg
+    talla                   Decimal     @db.Decimal(5,2)    //cm
+    presion_sistolica       Int
+    presion_diastolica      Int
+    temperatura             Decimal     @db.Decimal(4,2)    //°C
+    perimetro_cefalico      Decimal     @db.Decimal(5,2)    //cm -> PC
+    motivo_consulta         String                          //MC
+    enfermedad_actual       String                          //EA
+    examen_fisico           String                          //EF
+    diagnostico             String                          //DG
+
+    id_paciente             Int
+    paciente                Paciente    @relation(fields: [id_paciente],references: [id_paciente])
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    indicaciones            Indicacion[]
+    examenes                Examen[]
+
+    @@map("consultas")
+}
+
+// =========================================
+// INDICACIONES
+// =========================================
+
+model Indicacion{
+    id_indicacion           Int         @id @default(autoincrement())
+    indicacion              String
+
+    id_consulta             Int
+    consulta                Consulta    @relation(fields: [id_consulta],references: [id_consulta])
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    @@map("indicaciones")
+}
+
+// =========================================
+// EXÁMENES
+// =========================================
+
+model Examen{
+
+    id_examen               Int         @id @default(autoincrement())
+    ruta_archivo            String
+    fecha                   DateTime
+
+    id_consulta             Int
+    consulta                Consulta    @relation(fields: [id_consulta],references: [id_consulta])
+
+    created_at              DateTime    @default(now())
+    updated_at              DateTime    @updatedAt
+    deleted_at              DateTime?
+
+    @@map("examenes")
+}

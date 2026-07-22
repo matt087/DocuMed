@@ -35,6 +35,7 @@ pgdata/
 
 # Prisma
 prisma/dev.db
+**/src/generated/prisma/
 
 # Logs
 *.log
