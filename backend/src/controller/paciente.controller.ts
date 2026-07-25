@@ -106,7 +106,7 @@ export const pacienteController = {
                 return;
             }
 
-            res.status(204).send();
+            res.status(204).json(pacienteEliminado);
         }
         catch (error){
             console.error(error);
