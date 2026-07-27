@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pacienteController } from "../controller/paciente.controller";
 import { contactoRoutesNested } from "./contacto.routes";
+import { antecedenteRoutesNested } from "./antecedente.routes";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.put("/:id", pacienteController.actualizar);
 router.delete("/:id", pacienteController.eliminar);
 
 router.use("/:id_paciente/contactos", contactoRoutesNested);
+router.use("/:id_paciente/antecedentes", antecedenteRoutesNested);
 
 export default router;
 
