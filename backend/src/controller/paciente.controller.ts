@@ -40,8 +40,8 @@ export const pacienteController = {
                 nombres, apellidos, fecha_nacimiento, sexo, cedula, direccion, telefono, 
                 fecha_primera_consulta, lugar_nacimiento } = req.body;
 
-            if(!nombres || !apellidos || !fecha_nacimiento || !sexo || !cedula 
-                || !direccion || !telefono || !fecha_primera_consulta || ! lugar_nacimiento){
+            if(!nombres || !apellidos || !fecha_nacimiento || !sexo  
+                || !direccion || !telefono || !fecha_primera_consulta || !lugar_nacimiento){
                 res.status(400).json({error: "Faltan campos obligatorios"});
                 return;
             }
