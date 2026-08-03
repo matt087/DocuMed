@@ -5,6 +5,7 @@ import { contactoRoutesFlat } from "./routes/contacto.routes";
 import { antecedenteRoutesFlat } from "./routes/antecedente.routes";
 import { consultaRoutesFlat } from "./routes/consulta.routes";
 import { indicacionRoutesFlat } from "./routes/indicaciones.routes";
+import { examenRoutesFlat } from "./routes/examen.routes";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -23,6 +24,7 @@ app.use("/contactos", contactoRoutesFlat);
 app.use("/antecedentes", antecedenteRoutesFlat);
 app.use("/consultas", consultaRoutesFlat);
 app.use("/indicaciones", indicacionRoutesFlat);
+app.use("/examenes", examenRoutesFlat);
 
 app.listen(PORT, () =>{
     console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
