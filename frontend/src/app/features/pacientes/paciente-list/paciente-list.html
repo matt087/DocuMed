@@ -1,0 +1,129 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold text-slate-900">Pacientes</h1>
+        <p class="text-sm text-slate-500 mt-1">Historias clínicas registradas en el consultorio</p>
+      </div>
+      <a
+        routerLink="/pacientes/nuevo"
+        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+      >
+        Nuevo paciente
+      </a>
+    </div>
+
+    @if (!cargando() && !error()) {
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <p class="text-sm text-slate-500">Total de pacientes</p>
+          <p class="text-3xl font-semibold text-slate-900 mt-1">{{ totalPacientes() }}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <p class="text-sm text-slate-500">Nuevos este mes</p>
+          <p class="text-3xl font-semibold text-slate-900 mt-1">{{ nuevosEsteMes() }}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <p class="text-sm text-slate-500">Edad promedio</p>
+          <p class="text-3xl font-semibold text-slate-900 mt-1">{{ edadPromedio() }} años</p>
+        </div>
+      </div>
+
+      <div class="relative mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="busqueda"
+          placeholder="Buscar por nombre o cédula..."
+          class="w-full bg-white border border-slate-200 rounded-lg pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+    }
+
+    @if (cargando()) {
+      <div class="text-center py-16 text-slate-400">Cargando pacientes...</div>
+    } @else if (error()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+        {{ error() }}
+      </div>
+    } @else if (pacientes().length === 0) {
+      <div class="text-center py-16 border border-dashed border-slate-300 rounded-xl">
+        <p class="text-slate-500">Todavía no hay pacientes registrados.</p>
+        <a routerLink="/pacientes/nuevo" class="text-blue-600 text-sm font-medium mt-2 inline-block hover:underline">
+          Registrar el primero →
+        </a>
+      </div>
+    } @else if (pacientesFiltrados().length === 0) {
+      <div class="text-center py-16 border border-dashed border-slate-300 rounded-xl">
+        <p class="text-slate-500">Ningún paciente coincide con "{{ busqueda() }}".</p>
+      </div>
+    } @else {
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr class="text-slate-500">
+              <th class="px-6 py-3.5 font-medium text-center">Paciente</th>
+              <th class="px-6 py-3.5 font-medium text-center">Cédula</th>
+              <th class="px-6 py-3.5 font-medium text-center">Teléfono</th>
+              <th class="px-6 py-3.5 font-medium text-center">Primera consulta</th>
+              <th class="px-6 py-3.5 font-medium text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (paciente of pacientesFiltrados(); track paciente.id_paciente) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-center gap-3">
+                    <div
+                      class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0"
+                      [class]="obtenerColorAvatar(paciente.id_paciente)"
+                    >
+                      {{ obtenerIniciales(paciente) }}
+                    </div>
+                    <div class="text-left">
+                      <p class="text-slate-900 font-medium">{{ paciente.nombres }} {{ paciente.apellidos }}</p>
+                      <p class="text-slate-500 text-xs mt-0.5">{{ paciente.lugar_nacimiento }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-slate-600 text-center">{{ paciente.cedula || '—' }}</td>
+                <td class="px-6 py-4 text-slate-600 text-center">{{ paciente.telefono }}</td>
+                <td class="px-6 py-4 text-slate-600 text-center">
+                  {{ paciente.fecha_primera_consulta | date: 'dd/MM/yyyy' }}
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-center gap-4">
+                    <a
+                      [routerLink]="['/pacientes', paciente.id_paciente]"
+                      class="text-blue-600 hover:underline text-sm font-medium"
+                    >
+                      Ver
+                    </a>
+                    <button
+                      (click)="eliminarPaciente(paciente.id_paciente, paciente.nombres + ' ' + paciente.apellidos)"
+                      class="text-red-600 hover:underline text-sm font-medium"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>
