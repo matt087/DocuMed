@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express, {Request, Response} from "express";
+import cors from "cors";
+
 import pacienteRoutes from "./routes/paciente.routes";
 import { contactoRoutesFlat } from "./routes/contacto.routes";
 import { antecedenteRoutesFlat } from "./routes/antecedente.routes";
@@ -10,6 +12,11 @@ import { examenRoutesFlat } from "./routes/examen.routes";
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+  })
+);
 app.use(express.json());
 
 app.get("/", (_req: Request, res: Response)=>{
