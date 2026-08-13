@@ -52,7 +52,7 @@
           </div>
           <div>
             <p class="text-xs text-slate-500">Fecha de nacimiento</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy' }}</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy':'UTC' }}</p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Teléfono</p>
@@ -60,7 +60,7 @@
           </div>
           <div>
             <p class="text-xs text-slate-500">Primera consulta</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy' }}</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}</p>
           </div>
           <div class="col-span-3">
             <p class="text-xs text-slate-500">Dirección</p>

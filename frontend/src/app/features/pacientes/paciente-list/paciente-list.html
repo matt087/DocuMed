@@ -84,7 +84,7 @@
             @for (paciente of pacientesFiltrados(); track paciente.id_paciente) {
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="px-6 py-4 align-middle">
-                  <div class="flex items-center justify-left gap-3">
+                  <div class="flex items-center justify-center gap-3">
                     <div
                       class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0"
                       [class]="obtenerColorAvatar(paciente.id_paciente)"
@@ -100,7 +100,7 @@
                 <td class="px-6 py-4 text-slate-600 text-center align-middle">{{ paciente.cedula || '—' }}</td>
                 <td class="px-6 py-4 text-slate-600 text-center align-middle">{{ paciente.telefono }}</td>
                 <td class="px-6 py-4 text-slate-600 text-center align-middle">
-                  {{ paciente.fecha_primera_consulta | date: 'dd/MM/yyyy' }}
+                  {{ paciente.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}
                 </td>
                 <td class="px-6 py-4 align-middle">
                   <div class="flex items-center justify-center gap-4">
