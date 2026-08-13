@@ -32,7 +32,6 @@ export class PacienteForm implements OnInit {
     cedula: [''],
     direccion: ['', Validators.required],
     telefono: ['', Validators.required],
-    fecha_primera_consulta: ['', Validators.required],
     lugar_nacimiento: ['', Validators.required],
   });
 
@@ -43,9 +42,6 @@ export class PacienteForm implements OnInit {
       this.idPaciente = Number(idParam);
       this.editando.set(true);
       this.cargarPaciente(this.idPaciente);
-    } else {
-      this.form.patchValue({ fecha_primera_consulta: this.obtenerFechaHoy() });
-      this.form.get('fecha_primera_consulta')?.disable();
     }
   }
 
@@ -70,7 +66,6 @@ export class PacienteForm implements OnInit {
           cedula: paciente.cedula ?? '',
           direccion: paciente.direccion,
           telefono: paciente.telefono,
-          fecha_primera_consulta: this.aFechaInput(paciente.fecha_primera_consulta),
           lugar_nacimiento: paciente.lugar_nacimiento,
         });
         this.cargando.set(false);
@@ -96,15 +91,18 @@ export class PacienteForm implements OnInit {
     this.error.set(null);
 
     const valores = this.form.getRawValue();
-    const payload = {
+    const datosComunes = {
       ...valores,
       sexo: valores.sexo as 'M' | 'F',
       cedula: valores.cedula.trim() === '' ? undefined : valores.cedula,
     };
 
     const peticion = this.editando()
-      ? this.pacienteService.actualizar(this.idPaciente!, payload)
-      : this.pacienteService.crear(payload);
+      ? this.pacienteService.actualizar(this.idPaciente!, datosComunes)
+      : this.pacienteService.crear({
+          ...datosComunes,
+          fecha_primera_consulta: this.obtenerFechaHoy(),
+        });
 
     peticion.subscribe({
       next: () => {
