@@ -78,7 +78,7 @@
 
       <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold text-slate-900">Contactos de emergencia</h2>
+          <h2 class="text-base font-semibold text-slate-900">Contactos de emergencia</h2>
           @if (!mostrarFormContacto()) {
             <button
               (click)="mostrarFormContacto.set(true)"
@@ -140,20 +140,28 @@
         } @else {
           <div class="space-y-3">
             @for (contacto of p.contactos; track contacto.id_contacto) {
-              <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
-                <div>
-                  <p class="text-sm font-medium text-slate-900">{{ contacto.nombres }}</p>
-                  <p class="text-sm text-slate-500">{{ contacto.relacion }}</p>
+              <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-base font-semibold text-slate-900">{{ contacto.nombres }}</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="text-sm text-slate-500">{{ contacto.relacion }}</span>
+                      <span class="text-slate-300">·</span>
+                      <span class="text-sm text-slate-600">{{ contacto.telefono }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="flex items-center gap-4">
-                  <p class="text-sm text-slate-600">{{ contacto.telefono }}</p>
-                  <button
-                    (click)="eliminarContacto(contacto.id_contacto)"
-                    class="text-red-600 hover:underline text-xs font-medium"
-                  >
-                    Eliminar
-                  </button>
-                </div>
+                <button
+                  (click)="eliminarContacto(contacto.id_contacto)"
+                  class="text-red-600 hover:underline text-sm font-medium"
+                >
+                  Eliminar
+                </button>
               </div>
             }
           </div>
@@ -162,7 +170,7 @@
 
       <div class="bg-white border border-slate-200 rounded-xl p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold text-slate-900">Antecedentes</h2>
+          <h2 class="text-base font-semibold text-slate-900">Antecedentes</h2>
           @if (!mostrarFormAntecedente()) {
             <button
               (click)="mostrarFormAntecedente.set(true)"
@@ -221,17 +229,19 @@
         } @else {
           <div class="space-y-3">
             @for (antecedente of p.antecedentes; track antecedente.id_antecedentes) {
-              <div class="border border-slate-100 rounded-lg px-4 py-3">
-                <div class="flex items-start justify-between">
-                  <p class="text-xs font-medium text-blue-600">{{ antecedente.tipo }}</p>
+              <div class="border border-slate-100 rounded-lg px-4 py-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="inline-block text-sm font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                    {{ antecedente.tipo }}
+                  </span>
                   <button
                     (click)="eliminarAntecedente(antecedente.id_antecedentes)"
-                    class="text-red-600 hover:underline text-xs font-medium"
+                    class="text-red-600 hover:underline text-sm font-medium"
                   >
                     Eliminar
                   </button>
                 </div>
-                <p class="text-sm text-slate-700 mt-1">{{ antecedente.descripcion }}</p>
+                <p class="text-base text-slate-800">{{ antecedente.descripcion }}</p>
               </div>
             }
           </div>
