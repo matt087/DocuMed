@@ -1,0 +1,110 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-4xl mx-auto">
+
+    <a routerLink="/pacientes" class="text-sm text-slate-500 hover:text-slate-700 inline-flex items-center gap-1 mb-6">
+      ← Volver a pacientes
+    </a>
+
+    @if (cargando()) {
+      <div class="text-center py-16 text-slate-400">Cargando paciente...</div>
+    } @else if (error()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+        {{ error() }}
+      </div>
+    } @else if (paciente(); as p) {
+
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold text-xl flex-shrink-0">
+            {{ p.nombres.charAt(0) }}{{ p.apellidos.charAt(0) }}
+          </div>
+          <div>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ p.nombres }} {{ p.apellidos }}</h1>
+            <p class="text-sm text-slate-500 mt-0.5">{{ edad() }} años · {{ p.lugar_nacimiento }}</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <a
+            [routerLink]="['/pacientes', p.id_paciente, 'editar']"
+            class="px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+          >
+            Editar
+          </a>
+          <button
+            (click)="eliminarPaciente()"
+            class="px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4">Datos personales</h2>
+        <div class="grid grid-cols-3 gap-6">
+          <div>
+            <p class="text-xs text-slate-500">Cédula</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.cedula || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Sexo</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Fecha de nacimiento</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Teléfono</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.telefono }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Primera consulta</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="col-span-3">
+            <p class="text-xs text-slate-500">Dirección</p>
+            <p class="text-sm text-slate-900 mt-1">{{ p.direccion }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4">Contactos de emergencia</h2>
+        @if (!p.contactos || p.contactos.length === 0) {
+          <p class="text-sm text-slate-400">No hay contactos registrados.</p>
+        } @else {
+          <div class="space-y-3">
+            @for (contacto of p.contactos; track contacto.id_contacto) {
+              <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
+                <div>
+                  <p class="text-sm font-medium text-slate-900">{{ contacto.nombres }}</p>
+                  <p class="text-xs text-slate-500">{{ contacto.relacion }}</p>
+                </div>
+                <p class="text-sm text-slate-600">{{ contacto.telefono }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4">Antecedentes</h2>
+        @if (!p.antecedentes || p.antecedentes.length === 0) {
+          <p class="text-sm text-slate-400">No hay antecedentes registrados.</p>
+        } @else {
+          <div class="space-y-3">
+            @for (antecedente of p.antecedentes; track antecedente.id_antecedentes) {
+              <div class="border border-slate-100 rounded-lg px-4 py-3">
+                <p class="text-xs font-medium text-blue-600">{{ antecedente.tipo }}</p>
+                <p class="text-sm text-slate-700 mt-1">{{ antecedente.descripcion }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    }
+
+  </div>
+</div>

@@ -12,11 +12,27 @@ export interface Paciente {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+
+  contactos?: Contacto[];
+  antecedentes?: Antecedente[];
+}
+
+export interface Contacto {
+  id_contacto: number;
+  nombres: string;
+  relacion: string;
+  telefono: string;
+}
+
+export interface Antecedente {
+  id_antecedentes: number;
+  tipo: "Personal" | "Familiar" | "GO";
+  descripcion: string;
 }
 
 export type CrearPacienteInput = Omit<
   Paciente,
-  "id_paciente" | "created_at" | "updated_at" | "deleted_at"
+  "id_paciente" | "created_at" | "updated_at" | "deleted_at" | "contactos" | "antecedentes"
 >;
 
 export type ActualizarPacienteInput = Partial<CrearPacienteInput>;

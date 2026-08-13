@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './shared/layout/main-layout/main-layout';
 import { PacienteList } from './features/pacientes/paciente-list/paciente-list';
 import { PacienteForm } from './features/pacientes/paciente-form/paciente-form';
+import { PacienteDetail } from './features/pacientes/paciente-detail/paciente-detail';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,7 @@ export const routes: Routes = [
       { path: 'pacientes', component: PacienteList },
       { path: 'pacientes/nuevo', component: PacienteForm },
       { path: 'pacientes/:id/editar', component: PacienteForm },
+      { path: 'pacientes/:id', component: PacienteDetail },
     ],
   },
 ];
