@@ -43,28 +43,28 @@
         <h2 class="text-sm font-semibold text-slate-900 mb-4">Datos personales</h2>
         <div class="grid grid-cols-3 gap-6">
           <div>
-            <p class="text-xs text-slate-500">Cédula</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.cedula || '—' }}</p>
+            <p class="text-sm text-slate-500">Cédula</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.cedula || '—' }}</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Sexo</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</p>
+            <p class="text-sm text-slate-500">Sexo</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Fecha de nacimiento</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy':'UTC' }}</p>
+            <p class="text-sm text-slate-500">Fecha de nacimiento</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy':'UTC' }}</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Teléfono</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.telefono }}</p>
+            <p class="text-sm text-slate-500">Teléfono</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.telefono }}</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Primera consulta</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}</p>
+            <p class="text-sm text-slate-500">Primera consulta</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}</p>
           </div>
           <div class="col-span-3">
-            <p class="text-xs text-slate-500">Dirección</p>
-            <p class="text-sm text-slate-900 mt-1">{{ p.direccion }}</p>
+            <p class="text-sm text-slate-500">Dirección</p>
+            <p class="text-base text-slate-900 mt-1">{{ p.direccion }}</p>
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@
               <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
                 <div>
                   <p class="text-sm font-medium text-slate-900">{{ contacto.nombres }}</p>
-                  <p class="text-xs text-slate-500">{{ contacto.relacion }}</p>
+                  <p class="text-sm text-slate-500">{{ contacto.relacion }}</p>
                 </div>
                 <p class="text-sm text-slate-600">{{ contacto.telefono }}</p>
               </div>
