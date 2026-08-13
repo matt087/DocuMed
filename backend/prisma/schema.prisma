@@ -85,7 +85,7 @@ model Consulta{
     presion_sistolica       Int
     presion_diastolica      Int
     temperatura             Decimal     @db.Decimal(4,2)    //°C
-    perimetro_cefalico      Decimal     @db.Decimal(5,2)    //cm -> PC
+    perimetro_cefalico      Decimal?     @db.Decimal(5,2)    //cm -> PC
     motivo_consulta         String                          //MC
     enfermedad_actual       String                          //EA
     examen_fisico           String                          //EF
