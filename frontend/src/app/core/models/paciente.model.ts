@@ -1,3 +1,6 @@
+import { Contacto } from "./contacto.model";
+import { Antecedente } from "./antecedente.model";
+
 export interface Paciente {
   id_paciente: number;
   nombres: string;
@@ -15,19 +18,6 @@ export interface Paciente {
 
   contactos?: Contacto[];
   antecedentes?: Antecedente[];
-}
-
-export interface Contacto {
-  id_contacto: number;
-  nombres: string;
-  relacion: string;
-  telefono: string;
-}
-
-export interface Antecedente {
-  id_antecedentes: number;
-  tipo: "Personal" | "Familiar" | "GO";
-  descripcion: string;
 }
 
 export type CrearPacienteInput = Omit<
