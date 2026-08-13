@@ -8,7 +8,6 @@ const CAMPOS_OBLIGATORIOS = [
     "presion_sistolica",
     "presion_diastolica",
     "temperatura",
-    "perimetro_cefalico",
     "motivo_consulta",
     "enfermedad_actual",
     "examen_fisico",
@@ -34,6 +33,18 @@ function normalizarFechaYNumeros(body: Record<string, unknown>) {
 };
 
 export const consultaController = {
+  async listar(req: Request, res: Response) {
+    try {
+      const desde = req.query.desde as string | undefined;
+      const hasta = req.query.hasta as string | undefined;
+      const consultas = await consultaService.listar(desde, hasta);
+      res.json(consultas);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error al listar consultas" });
+    }
+  },
+  
   async listarPorPaciente(req: Request, res: Response) {
     try {
       const id_paciente = Number(req.params.id_paciente);
