@@ -21,17 +21,24 @@ export class ConsultaList implements OnInit {
 
   fechaDesde = signal('');
   fechaHasta = signal('');
+  errorRango = signal<string | null>(null);
 
   ngOnInit(): void {
     this.cargarConsultas();
   }
 
   cargarConsultas(): void {
-    this.cargando.set(true);
-    this.error.set(null);
-
     const desde = this.fechaDesde().trim() || undefined;
     const hasta = this.fechaHasta().trim() || undefined;
+
+    if (desde && hasta && desde > hasta) {
+      this.errorRango.set('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+      return;
+    }
+    this.errorRango.set(null);
+
+    this.cargando.set(true);
+    this.error.set(null);
 
     this.consultaService.listar(desde, hasta).subscribe({
       next: (data) => {
