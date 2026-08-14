@@ -8,6 +8,7 @@ consultaRoutesNested.get("/", consultaController.listarPorPaciente);
 consultaRoutesNested.post("/", consultaController.crear);
  
 export const consultaRoutesFlat = Router();
+consultaRoutesFlat.get("/", consultaController.listar);
 consultaRoutesFlat.get("/:id", consultaController.buscarPorId);
 consultaRoutesFlat.put("/:id", consultaController.actualizar);
 consultaRoutesFlat.delete("/:id", consultaController.eliminar);+

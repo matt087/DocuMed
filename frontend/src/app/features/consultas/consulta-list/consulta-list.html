@@ -1,0 +1,96 @@
+<div class="min-h-screen bg-slate-50 p-8">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold text-slate-900">Consultas</h1>
+      <p class="text-sm text-slate-500 mt-1">Historial de consultas médicas registradas</p>
+    </div>
+
+    <div class="flex items-end gap-3 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Desde</label>
+        <input
+          type="date"
+          [(ngModel)]="fechaDesde"
+          (change)="cargarConsultas()"
+          class="border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Hasta</label>
+        <input
+          type="date"
+          [(ngModel)]="fechaHasta"
+          (change)="cargarConsultas()"
+          class="border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      @if (hayFiltroActivo()) {
+        <button
+          (click)="limpiarFiltro()"
+          class="text-sm font-medium text-slate-500 hover:text-slate-700 px-3 py-2.5"
+        >
+          Quitar filtro
+        </button>
+      }
+    </div>
+
+    @if (cargando()) {
+      <div class="text-center py-16 text-slate-400">Cargando consultas...</div>
+    } @else if (error()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+        {{ error() }}
+      </div>
+    } @else if (consultas().length === 0) {
+      <div class="text-center py-16 border border-dashed border-slate-300 rounded-xl">
+        <p class="text-slate-500">
+          {{ hayFiltroActivo() ? 'No hay consultas registradas en ese rango de fechas.' : 'Todavía no hay consultas registradas.' }}
+        </p>
+      </div>
+    } @else {
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr class="text-slate-500">
+              <th class="px-6 py-3.5 font-medium text-left">Paciente</th>
+              <th class="px-6 py-3.5 font-medium text-center">Fecha</th>
+              <th class="px-6 py-3.5 font-medium text-left">Motivo de consulta</th>
+              <th class="px-6 py-3.5 font-medium text-left">Diagnóstico</th>
+              <th class="px-6 py-3.5 font-medium text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (consulta of consultas(); track consulta.id_consulta) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 align-middle">
+                  @if (consulta.paciente) {
+                    <a
+                      [routerLink]="['/pacientes', consulta.paciente.id_paciente]"
+                      class="text-blue-600 hover:underline font-medium"
+                    >
+                      {{ consulta.paciente.nombres }} {{ consulta.paciente.apellidos }}
+                    </a>
+                  }
+                </td>
+                <td class="px-6 py-4 align-middle text-center text-slate-600">
+                  {{ consulta.fecha | date: 'dd/MM/yyyy':'UTC' }}
+                </td>
+                <td class="px-6 py-4 align-middle text-slate-700">{{ consulta.motivo_consulta }}</td>
+                <td class="px-6 py-4 align-middle text-slate-700">{{ consulta.diagnostico }}</td>
+                <td class="px-6 py-4 align-middle text-center">
+                  <a
+                    [routerLink]="['/consultas', consulta.id_consulta]"
+                    class="text-blue-600 hover:underline text-sm font-medium"
+                  >
+                    Ver
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>
