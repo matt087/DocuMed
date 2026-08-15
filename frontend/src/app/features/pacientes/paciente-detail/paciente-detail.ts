@@ -6,6 +6,8 @@ import { PacienteService } from '../../../core/services/paciente.service';
 import { ContactoService } from '../../../core/services/contacto.service';
 import { AntecedenteService } from '../../../core/services/antecedente.service';
 import { Paciente } from '../../../core/models/paciente.model';
+import { ConsultaService } from '../../../core/services/consulta.service';
+import { Consulta } from '../../../core/models/consulta.model';
 
 @Component({
   selector: 'app-paciente-detail',
@@ -18,6 +20,7 @@ export class PacienteDetail implements OnInit {
   private pacienteService = inject(PacienteService);
   private contactoService = inject(ContactoService);
   private antecedenteService = inject(AntecedenteService);
+  private consultaService = inject(ConsultaService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -51,10 +54,28 @@ export class PacienteDetail implements OnInit {
     descripcion: ['', Validators.required],
   });
 
+  consultas = signal<Consulta[]>([]);
+  cargandoConsultas = signal(true);
+
   ngOnInit(): void {
     this.idPaciente = Number(this.route.snapshot.paramMap.get('id'));
     this.cargarPaciente();
+    this.cargarConsultas();
   }
+
+  private cargarConsultas(): void {
+    this.cargandoConsultas.set(true);
+    this.consultaService.listarPorPaciente(this.idPaciente).subscribe({
+      next: (data) => {
+        this.consultas.set(data);
+        this.cargandoConsultas.set(false);
+      },
+      error: () => {
+        this.cargandoConsultas.set(false);
+      },
+    });
+  }
+
 
   private cargarPaciente(): void {
     this.cargando.set(true);
@@ -75,7 +96,7 @@ export class PacienteDetail implements OnInit {
     const p = this.paciente();
     if (!p) return;
 
-    const confirmado = confirm(`¿Eliminar al paciente ${p.nombres} ${p.apellidos}? Esta acción no se puede deshacer desde la interfaz.`);
+    const confirmado = confirm(`¿Eliminar al paciente ${p.nombres} ${p.apellidos}?`);
     if (!confirmado) return;
 
     this.pacienteService.eliminar(p.id_paciente).subscribe({

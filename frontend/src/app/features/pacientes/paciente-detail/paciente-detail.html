@@ -1,254 +1,283 @@
 <div class="min-h-screen bg-slate-50 p-8">
   <div class="max-w-4xl mx-auto">
 
-    <a
-      routerLink="/pacientes"
-      class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline mb-6"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <a routerLink="/pacientes"
+      class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
       Volver a pacientes
     </a>
 
     @if (cargando()) {
-      <div class="text-center py-16 text-slate-400">Cargando paciente...</div>
+    <div class="text-center py-16 text-slate-400">Cargando paciente...</div>
     } @else if (error()) {
-      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
-        {{ error() }}
-      </div>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+      {{ error() }}
+    </div>
     } @else if (paciente(); as p) {
 
-      <!-- Encabezado con nombre y acciones -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold text-xl flex-shrink-0">
-            {{ p.nombres.charAt(0) }}{{ p.apellidos.charAt(0) }}
-          </div>
-          <div>
-            <h1 class="text-2xl font-semibold text-slate-900">{{ p.nombres }} {{ p.apellidos }}</h1>
-            <p class="text-sm text-slate-500 mt-0.5">{{ edad() }} años · {{ p.lugar_nacimiento }}</p>
-          </div>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <div
+          class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold text-xl flex-shrink-0">
+          {{ p.nombres.charAt(0) }}{{ p.apellidos.charAt(0) }}
         </div>
-        <div class="flex gap-3">
-          <a
-            [routerLink]="['/pacientes', p.id_paciente, 'editar']"
-            class="px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
-          >
-            Editar
-          </a>
-          <button
-            (click)="eliminarPaciente()"
-            class="px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors"
-          >
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-900">{{ p.nombres }} {{ p.apellidos }}</h1>
+          <p class="text-sm text-slate-500 mt-0.5">{{ edad() }} años · {{ p.lugar_nacimiento }}</p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <a [routerLink]="['/pacientes', p.id_paciente, 'editar']"
+          class="px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+          Editar
+        </a>
+        <button (click)="eliminarPaciente()"
+          class="px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors cursor-pointer">
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+      <h2 class="text-sm font-semibold text-slate-900 mb-4">Datos personales</h2>
+      <div class="grid grid-cols-3 gap-6">
+        <div>
+          <p class="text-sm text-slate-500">Cédula</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.cedula || '—' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-500">Sexo</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-500">Fecha de nacimiento</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy':'UTC' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-500">Teléfono</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.telefono }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-500">Primera consulta</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}</p>
+        </div>
+        <div class="col-span-3">
+          <p class="text-sm text-slate-500">Dirección</p>
+          <p class="text-base text-slate-900 mt-1">{{ p.direccion }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-slate-900">Contactos de emergencia</h2>
+        @if (!mostrarFormContacto()) {
+        <a (click)="mostrarFormContacto.set(true)"
+          class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
+          + Agregar
+        </a>
+        }
+      </div>
+
+      @if (mostrarFormContacto()) {
+      <form [formGroup]="formContacto" (ngSubmit)="agregarContacto()"
+        class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
+        @if (errorContacto()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
+          {{ errorContacto() }}
+        </div>
+        }
+        <div class="grid grid-cols-3 gap-3">
+          <input type="text" formControlName="nombres" placeholder="Nombres"
+            class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" formControlName="relacion" placeholder="Relación (ej. Madre)"
+            class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" formControlName="telefono" placeholder="Teléfono"
+            class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" (click)="mostrarFormContacto.set(false); formContacto.reset()"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="guardandoContacto()"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white">
+            {{ guardandoContacto() ? 'Guardando...' : 'Guardar contacto' }}
+          </button>
+        </div>
+      </form>
+      }
+
+      @if (!p.contactos || p.contactos.length === 0) {
+      <p class="text-sm text-slate-400">No hay contactos registrados.</p>
+      } @else {
+      <div class="space-y-3">
+        @for (contacto of p.contactos; track contacto.id_contacto) {
+        <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-base font-semibold text-slate-900">{{ contacto.nombres }}</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-sm text-slate-500">{{ contacto.relacion }}</span>
+                <span class="text-slate-300">·</span>
+                <span class="text-sm text-slate-600">{{ contacto.telefono }}</span>
+              </div>
+            </div>
+          </div>
+          <button (click)="eliminarContacto(contacto.id_contacto)"
+            class="text-red-600 hover:underline text-sm font-medium cursor-pointer">
             Eliminar
           </button>
         </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-slate-900">Antecedentes</h2>
+        @if (!mostrarFormAntecedente()) {
+        <a (click)="mostrarFormAntecedente.set(true)"
+          class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
+          + Agregar
+        </a>
+        }
       </div>
 
-      <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-        <h2 class="text-sm font-semibold text-slate-900 mb-4">Datos personales</h2>
-        <div class="grid grid-cols-3 gap-6">
-          <div>
-            <p class="text-sm text-slate-500">Cédula</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.cedula || '—' }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-slate-500">Sexo</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-slate-500">Fecha de nacimiento</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.fecha_nacimiento | date: 'dd/MM/yyyy':'UTC' }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-slate-500">Teléfono</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.telefono }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-slate-500">Primera consulta</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.fecha_primera_consulta | date: 'dd/MM/yyyy':'UTC' }}</p>
-          </div>
-          <div class="col-span-3">
-            <p class="text-sm text-slate-500">Dirección</p>
-            <p class="text-base text-slate-900 mt-1">{{ p.direccion }}</p>
-          </div>
+      @if (mostrarFormAntecedente()) {
+      <form [formGroup]="formAntecedente" (ngSubmit)="agregarAntecedente()"
+        class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
+        @if (errorAntecedente()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
+          {{ errorAntecedente() }}
         </div>
-      </div>
+        }
+        <div class="grid grid-cols-3 gap-3">
+          <select formControlName="tipo"
+            class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="" disabled>Tipo</option>
+            <option value="Personal">Personal</option>
+            <option value="Familiar">Familiar</option>
+            <option value="GO">Gineco-obstétrico</option>
+          </select>
+          <input type="text" formControlName="descripcion" placeholder="Descripción"
+            class="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" (click)="mostrarFormAntecedente.set(false); formAntecedente.reset()"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="guardandoAntecedente()"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white">
+            {{ guardandoAntecedente() ? 'Guardando...' : 'Guardar antecedente' }}
+          </button>
+        </div>
+      </form>
+      }
 
-      <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-slate-900">Contactos de emergencia</h2>
-          @if (!mostrarFormContacto()) {
-            <button
-              (click)="mostrarFormContacto.set(true)"
-              class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
-            >
-              + Agregar
+      @if (!p.antecedentes || p.antecedentes.length === 0) {
+      <p class="text-sm text-slate-400">No hay antecedentes registrados.</p>
+      } @else {
+      <div class="space-y-3">
+        @for (antecedente of p.antecedentes; track antecedente.id_antecedentes) {
+        <div class="border border-slate-100 rounded-lg px-4 py-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="inline-block text-sm font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+              {{ antecedente.tipo }}
+            </span>
+            <button (click)="eliminarAntecedente(antecedente.id_antecedentes)"
+              class="text-red-600 hover:underline text-sm font-medium cursor-pointer">
+              Eliminar
             </button>
-          }
-        </div>
-
-        @if (mostrarFormContacto()) {
-          <form [formGroup]="formContacto" (ngSubmit)="agregarContacto()" class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
-            @if (errorContacto()) {
-              <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
-                {{ errorContacto() }}
-              </div>
-            }
-            <div class="grid grid-cols-3 gap-3">
-              <input
-                type="text"
-                formControlName="nombres"
-                placeholder="Nombres"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                formControlName="relacion"
-                placeholder="Relación (ej. Madre)"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                formControlName="telefono"
-                placeholder="Teléfono"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div class="flex justify-end gap-2">
-              <button
-                type="button"
-                (click)="mostrarFormContacto.set(false); formContacto.reset()"
-                class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                [disabled]="guardandoContacto()"
-                class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white"
-              >
-                {{ guardandoContacto() ? 'Guardando...' : 'Guardar contacto' }}
-              </button>
-            </div>
-          </form>
-        }
-
-        @if (!p.contactos || p.contactos.length === 0) {
-          <p class="text-sm text-slate-400">No hay contactos registrados.</p>
-        } @else {
-          <div class="space-y-3">
-            @for (contacto of p.contactos; track contacto.id_contacto) {
-              <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="text-base font-semibold text-slate-900">{{ contacto.nombres }}</p>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="text-sm text-slate-500">{{ contacto.relacion }}</span>
-                      <span class="text-slate-300">·</span>
-                      <span class="text-sm text-slate-600">{{ contacto.telefono }}</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  (click)="eliminarContacto(contacto.id_contacto)"
-                  class="text-red-600 hover:underline text-sm font-medium"
-                >
-                  Eliminar
-                </button>
-              </div>
-            }
           </div>
+          <p class="text-base text-slate-800">{{ antecedente.descripcion }}</p>
+        </div>
         }
       </div>
+      }
+    </div>
 
-      <div class="bg-white border border-slate-200 rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-slate-900">Antecedentes</h2>
-          @if (!mostrarFormAntecedente()) {
-            <button
-              (click)="mostrarFormAntecedente.set(true)"
-              class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
-            >
-              + Agregar
-            </button>
-          }
-        </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-6 mt-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-slate-900">Consultas</h2>
+        <a [routerLink]="['/pacientes', p.id_paciente, 'consultas', 'nueva']"
+          class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+          + Agregar
+        </a>
+      </div>
 
-        @if (mostrarFormAntecedente()) {
-          <form [formGroup]="formAntecedente" (ngSubmit)="agregarAntecedente()" class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
-            @if (errorAntecedente()) {
-              <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
-                {{ errorAntecedente() }}
-              </div>
-            }
-            <div class="grid grid-cols-3 gap-3">
-              <select
-                formControlName="tipo"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="" disabled>Tipo</option>
-                <option value="Personal">Personal</option>
-                <option value="Familiar">Familiar</option>
-                <option value="GO">Gineco-obstétrico</option>
-              </select>
-              <input
-                type="text"
-                formControlName="descripcion"
-                placeholder="Descripción"
-                class="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div class="flex justify-end gap-2">
-              <button
-                type="button"
-                (click)="mostrarFormAntecedente.set(false); formAntecedente.reset()"
-                class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                [disabled]="guardandoAntecedente()"
-                class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white"
-              >
-                {{ guardandoAntecedente() ? 'Guardando...' : 'Guardar antecedente' }}
-              </button>
-            </div>
-          </form>
-        }
-
-        @if (!p.antecedentes || p.antecedentes.length === 0) {
-          <p class="text-sm text-slate-400">No hay antecedentes registrados.</p>
-        } @else {
-          <div class="space-y-3">
-            @for (antecedente of p.antecedentes; track antecedente.id_antecedentes) {
-              <div class="border border-slate-100 rounded-lg px-4 py-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="inline-block text-sm font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-                    {{ antecedente.tipo }}
-                  </span>
-                  <button
-                    (click)="eliminarAntecedente(antecedente.id_antecedentes)"
-                    class="text-red-600 hover:underline text-sm font-medium"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-                <p class="text-base text-slate-800">{{ antecedente.descripcion }}</p>
-              </div>
-            }
+      @if (cargandoConsultas()) {
+      <p class="text-sm text-slate-400">
+        Cargando consultas...
+      </p>
+      } @else if (consultas().length === 0) {
+      <div class="text-center py-10 border border-dashed border-slate-200 rounded-lg">
+        <p class="text-sm text-slate-400">
+          No hay consultas registradas.
+        </p>
+      </div>
+      } @else {
+      <div class="space-y-3">
+        @for (consulta of consultas(); track consulta.id_consulta) {
+        <a [routerLink]="['/consultas', consulta.id_consulta]"
+          class="flex items-center gap-4 border border-slate-100 rounded-lg px-4 py-4 hover:border-slate-200 hover:bg-slate-50 transition-colors">
+          <!-- Icono -->
+          <div class="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
           </div>
+
+          <!-- Información de la consulta -->
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-semibold text-slate-900">
+              {{ consulta.fecha | date:'dd/MM/yyyy':'UTC' }}
+            </p>
+
+            <p class="text-sm text-slate-500 mt-0.5 truncate">
+              {{ consulta.diagnostico }}
+            </p>
+
+            <div class="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+              <span>{{ consulta.peso }} kg</span>
+
+              <span class="text-slate-300">·</span>
+
+              <span>
+                {{ consulta.presion_sistolica }}/{{ consulta.presion_diastolica }}
+                mmHg
+              </span>
+
+              <span class="text-slate-300">·</span>
+
+              <span>{{ consulta.temperatura }}°C</span>
+            </div>
+          </div>
+
+          <!-- Flecha -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-300 flex-shrink-0" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
         }
       </div>
+      }
+    </div>
 
     }
-
   </div>
 </div>
