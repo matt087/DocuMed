@@ -8,7 +8,7 @@ export type CrearPacienteInput = {
     cedula: string;
     direccion: string;
     telefono: string;
-    fecha_primera_consulta: Date;
+    fecha_primera_consulta?: Date;
     lugar_nacimiento: string;
 };
 

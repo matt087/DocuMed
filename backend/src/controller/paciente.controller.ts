@@ -38,18 +38,17 @@ export const pacienteController = {
         try{
             const {
                 nombres, apellidos, fecha_nacimiento, sexo, cedula, direccion, telefono, 
-                fecha_primera_consulta, lugar_nacimiento } = req.body;
+                lugar_nacimiento } = req.body;
 
             if(!nombres || !apellidos || !fecha_nacimiento || !sexo  
-                || !direccion || !telefono || !fecha_primera_consulta || !lugar_nacimiento){
+                || !direccion || !telefono || !lugar_nacimiento){
                 res.status(400).json({error: "Faltan campos obligatorios"});
                 return;
             }
 
             const nuevoPaciente = await pacienteService.crear({
                 ...req.body,
-                fecha_nacimiento: new Date(fecha_nacimiento),
-                fecha_primera_consulta: new Date(fecha_primera_consulta),
+                fecha_nacimiento: new Date(fecha_nacimiento)
             });
 
             res.status(201).json(nuevoPaciente);
