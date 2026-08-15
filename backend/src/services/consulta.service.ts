@@ -61,9 +61,18 @@ export const consultaService = {
 
         if (!paciente) return null;
 
-        return prisma.consulta.create({
+        const nuevaConsulta = await prisma.consulta.create({
             data: { ...data, id_paciente },
         });
+
+        if (!paciente.fecha_primera_consulta) {
+            await prisma.paciente.update({
+                where: { id_paciente },
+                data: { fecha_primera_consulta: new Date() },
+            });
+        }
+
+        return nuevaConsulta;
     },
 
     async actualizar(id_consulta: number, data: ActualizarConsultaInput) {

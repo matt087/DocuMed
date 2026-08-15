@@ -20,7 +20,7 @@ model Paciente {
     cedula                  String?     @unique
     direccion               String
     telefono                String
-    fecha_primera_consulta  DateTime
+    fecha_primera_consulta  DateTime?
     lugar_nacimiento        String
 
     created_at              DateTime    @default(now())
