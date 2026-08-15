@@ -10,7 +10,7 @@ export interface Paciente {
   cedula?: string | null;
   direccion: string;
   telefono: string;
-  fecha_primera_consulta: string;
+  fecha_primera_consulta?: string | null;
   lugar_nacimiento: string;
   created_at: string;
   updated_at: string;
@@ -22,7 +22,7 @@ export interface Paciente {
 
 export type CrearPacienteInput = Omit<
   Paciente,
-  "id_paciente" | "created_at" | "updated_at" | "deleted_at" | "contactos" | "antecedentes"
+  "id_paciente" | "created_at" | "updated_at" | "deleted_at" | "contactos" | "antecedentes" | "fecha_primera_consulta"
 >;
 
 export type ActualizarPacienteInput = Partial<CrearPacienteInput>;

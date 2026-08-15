@@ -45,14 +45,6 @@ export class PacienteForm implements OnInit {
     }
   }
 
-  private obtenerFechaHoy(): string {
-    const hoy = new Date();
-    const anio = hoy.getFullYear();
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoy.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
-  }
-
   private cargarPaciente(id: number): void {
     this.cargando.set(true);
 
@@ -99,10 +91,7 @@ export class PacienteForm implements OnInit {
 
     const peticion = this.editando()
       ? this.pacienteService.actualizar(this.idPaciente!, datosComunes)
-      : this.pacienteService.crear({
-          ...datosComunes,
-          fecha_primera_consulta: this.obtenerFechaHoy(),
-        });
+      : this.pacienteService.crear(datosComunes);
 
     peticion.subscribe({
       next: () => {
