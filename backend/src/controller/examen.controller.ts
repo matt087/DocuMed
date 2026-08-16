@@ -51,23 +51,14 @@ export const examenController = {
         return;
       }
 
-      const { ruta_archivo, fecha } = req.body;
-
-      if (!ruta_archivo || !fecha) {
-        res.status(400).json({ error: "Faltan campos obligatorios" });
-        return;
-      }
-
-      const fechaConvertida = new Date(fecha);
-
-      if (Number.isNaN(fechaConvertida.getTime())) {
-        res.status(400).json({ error: "La fecha debe tener un formato válido (AAAA-MM-DD)" });
+      if (!req.file) {
+        res.status(400).json({ error: "Debes seleccionar un archivo" });
         return;
       }
 
       const nuevoExamen = await examenService.crear(id_consulta, {
-        ruta_archivo,
-        fecha: fechaConvertida,
+        ruta_archivo: req.file.path,
+        fecha: new Date(),
       });
 
       if (!nuevoExamen) {
