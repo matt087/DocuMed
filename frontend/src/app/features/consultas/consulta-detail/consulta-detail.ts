@@ -131,4 +131,12 @@ export class ConsultaDetail implements OnInit {
             error: () => alert('Ocurrió un error al eliminar el examen.'),
         });
     }
+
+    nombreArchivo(rutaCompleta: string): string {
+        return rutaCompleta.split(/[\\/]/).pop() ?? rutaCompleta;
+    }
+
+    abrirExamen(id_examen: number): void {
+        window.open(this.examenService.obtenerUrlArchivo(id_examen), '_blank');
+    }
 }

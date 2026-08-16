@@ -18,4 +18,8 @@ export class ExamenService {
   eliminar(id_examen: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id_examen}`);
   }
+
+  obtenerUrlArchivo(id_examen: number): string {
+    return `${this.baseUrl}/${id_examen}/archivo`;
+  }
 }

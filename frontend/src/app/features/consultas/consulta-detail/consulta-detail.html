@@ -92,7 +92,7 @@
                 <h2 class="text-base font-semibold text-slate-900">Indicaciones</h2>
                 @if (!mostrarFormIndicacion()) {
                 <button (click)="mostrarFormIndicacion.set(true)"
-                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
                     + Agregar
                 </button>
                 }
@@ -143,7 +143,7 @@
                 <h2 class="text-base font-semibold text-slate-900">Exámenes</h2>
                 @if (!mostrarFormExamen()) {
                 <button (click)="mostrarFormExamen.set(true)"
-                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
                     + Agregar
                 </button>
                 }
@@ -178,13 +178,19 @@
                 @for (ex of c.examenes; track ex.id_examen) {
                 <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
                     <div>
-                        <p class="text-sm font-medium text-slate-800">{{ ex.ruta_archivo }}</p>
+                        <p class="text-sm font-medium text-slate-800">{{ nombreArchivo(ex.ruta_archivo) }}</p>
                         <p class="text-xs text-slate-500">{{ ex.fecha | date: 'dd/MM/yyyy':'UTC' }}</p>
                     </div>
-                    <button (click)="eliminarExamen(ex.id_examen)"
-                        class="text-red-600 hover:underline text-sm font-medium flex-shrink-0 ml-3">
-                        Eliminar
-                    </button>
+                    <div class="flex items-center gap-3 flex-shrink-0 ml-3">
+                        <button (click)="abrirExamen(ex.id_examen)"
+                            class="text-blue-600 hover:underline text-sm font-medium cursor-pointer">
+                            Abrir
+                        </button>
+                        <button (click)="eliminarExamen(ex.id_examen)"
+                            class="text-red-600 hover:underline text-sm font-medium cursor-pointer">
+                            Eliminar
+                        </button>
+                    </div>
                 </div>
                 }
             </div>
