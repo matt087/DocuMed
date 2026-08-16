@@ -88,6 +88,7 @@
                 <td class="px-6 py-4 align-middle text-center">
                   <a
                     [routerLink]="['/consultas', consulta.id_consulta]"
+                    [queryParams]="{ origen: 'listado' }"
                     class="text-blue-600 hover:underline text-sm font-medium"
                   >
                     Ver

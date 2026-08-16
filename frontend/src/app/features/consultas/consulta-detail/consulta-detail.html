@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-slate-50 p-8">
+    <div class="max-w-4xl mx-auto">
+
+        @if (cargando()) {
+        <div class="text-center py-16 text-slate-400">Cargando consulta...</div>
+        } @else if (error()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+            {{ error() }}
+        </div>
+        } @else if (consulta(); as c) {
+
+        @if (origenListado()) {
+        <a routerLink="/consultas"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver al historial de consultas
+        </a>
+        } @else {
+        <a [routerLink]="['/pacientes', c.id_paciente]"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver a la ficha del paciente
+        </a>
+        }
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-slate-900">
+                Consulta del {{ c.fecha | date: 'dd/MM/yyyy':'UTC' }}
+            </h1>
+            @if (c.paciente) {
+            <p class="text-sm text-slate-500 mt-1">{{ c.paciente.nombres }} {{ c.paciente.apellidos }}</p>
+            }
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+            <h2 class="text-sm font-semibold text-slate-900 mb-4">Signos vitales</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-slate-50 rounded-lg p-3.5">
+                    <p class="text-xs text-slate-500">Peso</p>
+                    <p class="text-base font-medium text-slate-900 mt-0.5">{{ c.peso }} kg</p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3.5">
+                    <p class="text-xs text-slate-500">Talla</p>
+                    <p class="text-base font-medium text-slate-900 mt-0.5">{{ c.talla }} cm</p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3.5">
+                    <p class="text-xs text-slate-500">Temperatura</p>
+                    <p class="text-base font-medium text-slate-900 mt-0.5">{{ c.temperatura }}°C</p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3.5">
+                    <p class="text-xs text-slate-500">Presión arterial</p>
+                    <p class="text-base font-medium text-slate-900 mt-0.5">{{ c.presion_sistolica }}/{{
+                        c.presion_diastolica }} mmHg</p>
+                </div>
+                @if (c.perimetro_cefalico) {
+                <div class="bg-slate-50 rounded-lg p-3.5">
+                    <p class="text-xs text-slate-500">Perímetro cefálico</p>
+                    <p class="text-base font-medium text-slate-900 mt-0.5">{{ c.perimetro_cefalico }} cm</p>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6 space-y-5">
+            <h2 class="text-sm font-semibold text-slate-900">Evaluación clínica</h2>
+            <div>
+                <p class="text-sm text-slate-500 mb-1">Motivo de consulta</p>
+                <p class="text-base text-slate-800">{{ c.motivo_consulta }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-500 mb-1">Enfermedad actual</p>
+                <p class="text-base text-slate-800">{{ c.enfermedad_actual }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-500 mb-1">Examen físico</p>
+                <p class="text-base text-slate-800">{{ c.examen_fisico }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-500 mb-1">Diagnóstico</p>
+                <p class="text-base text-slate-800">{{ c.diagnostico }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold text-slate-900">Indicaciones</h2>
+                @if (!mostrarFormIndicacion()) {
+                <button (click)="mostrarFormIndicacion.set(true)"
+                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                    + Agregar
+                </button>
+                }
+            </div>
+
+            @if (mostrarFormIndicacion()) {
+            <form [formGroup]="formIndicacion" (ngSubmit)="agregarIndicacion()"
+                class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
+                @if (errorIndicacion()) {
+                <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
+                    {{ errorIndicacion() }}
+                </div>
+                }
+                <textarea formControlName="indicacion" rows="2" placeholder="Indicación médica"
+                    class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button" (click)="mostrarFormIndicacion.set(false); formIndicacion.reset()"
+                        class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="guardandoIndicacion()"
+                        class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white">
+                        {{ guardandoIndicacion() ? 'Guardando...' : 'Guardar indicación' }}
+                    </button>
+                </div>
+            </form>
+            }
+
+            @if (!c.indicaciones || c.indicaciones.length === 0) {
+            <p class="text-sm text-slate-400">No hay indicaciones registradas.</p>
+            } @else {
+            <div class="space-y-3">
+                @for (ind of c.indicaciones; track ind.id_indicacion) {
+                <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
+                    <p class="text-sm text-slate-800">{{ ind.indicacion }}</p>
+                    <button (click)="eliminarIndicacion(ind.id_indicacion)"
+                        class="text-red-600 hover:underline text-sm font-medium flex-shrink-0 ml-3">
+                        Eliminar
+                    </button>
+                </div>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold text-slate-900">Exámenes</h2>
+                @if (!mostrarFormExamen()) {
+                <button (click)="mostrarFormExamen.set(true)"
+                    class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                    + Agregar
+                </button>
+                }
+            </div>
+
+            @if (mostrarFormExamen()) {
+            <div class="border border-slate-200 rounded-lg p-4 mb-4 space-y-3">
+                @if (errorExamen()) {
+                <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs">
+                    {{ errorExamen() }}
+                </div>
+                }
+                <input type="file" (change)="onArchivoSeleccionado($event)"
+                    class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 file:text-sm" />
+                <div class="flex justify-end gap-2">
+                    <button type="button" (click)="mostrarFormExamen.set(false); archivoSeleccionado.set(null)"
+                        class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">
+                        Cancelar
+                    </button>
+                    <button type="button" (click)="agregarExamen()" [disabled]="guardandoExamen()"
+                        class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white">
+                        {{ guardandoExamen() ? 'Guardando...' : 'Guardar examen' }}
+                    </button>
+                </div>
+            </div>
+            }
+
+            @if (!c.examenes || c.examenes.length === 0) {
+            <p class="text-sm text-slate-400">No hay exámenes registrados.</p>
+            } @else {
+            <div class="space-y-3">
+                @for (ex of c.examenes; track ex.id_examen) {
+                <div class="flex items-center justify-between border border-slate-100 rounded-lg px-4 py-3">
+                    <div>
+                        <p class="text-sm font-medium text-slate-800">{{ ex.ruta_archivo }}</p>
+                        <p class="text-xs text-slate-500">{{ ex.fecha | date: 'dd/MM/yyyy':'UTC' }}</p>
+                    </div>
+                    <button (click)="eliminarExamen(ex.id_examen)"
+                        class="text-red-600 hover:underline text-sm font-medium flex-shrink-0 ml-3">
+                        Eliminar
+                    </button>
+                </div>
+                }
+            </div>
+            }
+        </div>
+
+        }
+    </div>
+</div>

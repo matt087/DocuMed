@@ -66,8 +66,8 @@ export class ConsultaForm implements OnInit {
     };
 
     this.consultaService.crear(this.idPaciente, payload).subscribe({
-      next: () => {
-        this.router.navigate(['/pacientes', this.idPaciente]);
+      next: (nuevaConsulta) => {
+        this.router.navigate(['/consultas', nuevaConsulta.id_consulta]);
       },
       error: () => {
         this.error.set('Ocurrió un error al guardar la consulta. Verifica los datos e intenta de nuevo.');
