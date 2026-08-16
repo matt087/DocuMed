@@ -1,3 +1,6 @@
+import { Indicacion } from './indicacion.model';
+import { Examen } from './examen.model';
+
 export interface Consulta {
   id_consulta: number;
   id_paciente: number;
@@ -21,6 +24,9 @@ export interface Consulta {
     nombres: string;
     apellidos: string;
   };
+
+  indicaciones?: Indicacion[];
+  examenes?: Examen[];
 }
 
 export type CrearConsultaInput = Omit<
