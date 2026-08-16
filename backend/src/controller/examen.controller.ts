@@ -131,4 +131,31 @@ export const examenController = {
       res.status(500).json({ error: "Error al eliminar el examen" });
     }
   },
+
+  async descargar(req: Request, res: Response) {
+    try {
+      const id_examen = Number(req.params.id);
+
+      if (Number.isNaN(id_examen)) {
+        res.status(400).json({ error: "El ID debe ser un número válido" });
+        return;
+      }
+
+      const examen = await examenService.buscarPorId(id_examen);
+
+      if (!examen) {
+        res.status(404).json({ error: "Examen no encontrado" });
+        return;
+      }
+
+      res.sendFile(examen.ruta_archivo, (error) => {
+        if (error && !res.headersSent) {
+          res.status(404).json({ error: "El archivo no se encontró en el sistema" });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error al abrir el examen" });
+    }
+  },
 };

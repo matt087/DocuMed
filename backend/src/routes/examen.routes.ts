@@ -10,3 +10,4 @@ export const examenRoutesFlat = Router();
 examenRoutesFlat.get("/:id", examenController.buscarPorId);
 examenRoutesFlat.put("/:id", examenController.actualizar);
 examenRoutesFlat.delete("/:id", examenController.eliminar);
+examenRoutesFlat.get("/:id/archivo", examenController.descargar);
