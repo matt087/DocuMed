@@ -6,7 +6,7 @@ import { PacienteDetail } from './features/pacientes/paciente-detail/paciente-de
 import { ConsultaList } from './features/consultas/consulta-list/consulta-list';
 import { ConsultaForm } from './features/consultas/consulta-form/consulta-form';
 import { ConsultaDetail } from './features/consultas/consulta-detail/consulta-detail';
-
+import {Configuracion} from './features/configuracion/configuracion';
 export const routes: Routes = [
   {
     path: '',
@@ -20,6 +20,7 @@ export const routes: Routes = [
       { path: 'consultas', component: ConsultaList },
       { path: 'pacientes/:id/consultas/nueva', component: ConsultaForm },
       { path: 'consultas/:id', component: ConsultaDetail },
+      {path: 'configuracion', component: Configuracion},
     ],
   },
 ];
