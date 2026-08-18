@@ -10,7 +10,7 @@
 
       <nav class="w-48 flex-shrink-0 space-y-1">
         <button (click)="seleccionarPestana('apariencia')"
-          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
           [class.bg-blue-50]="pestanaActiva() === 'apariencia'" [class.text-blue-700]="pestanaActiva() === 'apariencia'"
           [class.dark:bg-blue-950]="pestanaActiva() === 'apariencia'"
           [class.dark:text-blue-300]="pestanaActiva() === 'apariencia'"
@@ -19,7 +19,7 @@
           Apariencia
         </button>
         <button (click)="seleccionarPestana('almacenamiento')"
-          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer" 
           [class.bg-blue-50]="pestanaActiva() === 'almacenamiento'"
           [class.text-blue-700]="pestanaActiva() === 'almacenamiento'"
           [class.dark:bg-blue-950]="pestanaActiva() === 'almacenamiento'"
@@ -29,7 +29,7 @@
           Almacenamiento
         </button>
         <button (click)="seleccionarPestana('respaldo')"
-          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
           [class.bg-blue-50]="pestanaActiva() === 'respaldo'" [class.text-blue-700]="pestanaActiva() === 'respaldo'"
           [class.dark:bg-blue-950]="pestanaActiva() === 'respaldo'"
           [class.dark:text-blue-300]="pestanaActiva() === 'respaldo'"
@@ -47,7 +47,7 @@
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Elige cómo se ve DocuMed en tu pantalla.</p>
 
         <div class="flex gap-4">
-          <button (click)="themeService.establecer('claro')" class="flex-1 border-2 rounded-xl p-4 transition-colors"
+          <button (click)="themeService.establecer('claro')" class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
             [class.border-blue-500]="themeService.tema() === 'claro'"
             [class.border-slate-200]="themeService.tema() !== 'claro'"
             [class.dark:border-slate-700]="themeService.tema() !== 'claro'">
@@ -62,7 +62,7 @@
             <p class="text-sm font-medium text-slate-900 dark:text-white">Claro</p>
           </button>
 
-          <button (click)="themeService.establecer('oscuro')" class="flex-1 border-2 rounded-xl p-4 transition-colors"
+          <button (click)="themeService.establecer('oscuro')" class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
             [class.border-blue-500]="themeService.tema() === 'oscuro'"
             [class.border-slate-200]="themeService.tema() !== 'oscuro'"
             [class.dark:border-slate-700]="themeService.tema() !== 'oscuro'">
@@ -150,7 +150,7 @@
         }
 
         <button (click)="generarRespaldo()" [disabled]="generandoRespaldo()"
-          class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+          class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors cursor-pointer">
           {{ generandoRespaldo() ? 'Generando respaldo...' : 'Generar respaldo ahora' }}
         </button>
 
