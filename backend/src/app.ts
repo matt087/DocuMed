@@ -45,7 +45,7 @@ async function iniciarServidor() {
     app.use("/examenes", examenRoutesFlat);
     app.use("/configuracion", configuracionRoutes);
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
     });
   } catch (error) {
