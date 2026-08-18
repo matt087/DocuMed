@@ -26,6 +26,10 @@ export class Configuracion implements OnInit {
   errorAlmacenamiento = signal<string | null>(null);
   exitoAlmacenamiento = signal<string | null>(null);
 
+  generandoRespaldo = signal(false);
+  errorRespaldo = signal<string | null>(null);
+
+
   ngOnInit(): void {
     this.cargarAlmacenamiento();
   }
@@ -77,6 +81,27 @@ export class Configuracion implements OnInit {
       error: (err) => {
         this.errorAlmacenamiento.set(err?.error?.error ?? 'Ocurrió un error al cambiar la ubicación.');
         this.cambiandoRuta.set(false);
+      },
+    });
+  }
+
+  generarRespaldo(): void {
+    this.generandoRespaldo.set(true);
+    this.errorRespaldo.set(null);
+
+    this.configuracionService.generarRespaldo().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `DocuMed_respaldo_${new Date().toISOString().slice(0, 10)}.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.generandoRespaldo.set(false);
+      },
+      error: () => {
+        this.errorRespaldo.set('Ocurrió un error al generar el respaldo. Verifica que pg_dump esté disponible.');
+        this.generandoRespaldo.set(false);
       },
     });
   }

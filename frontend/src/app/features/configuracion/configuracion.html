@@ -138,9 +138,25 @@
         }
 
         @if (pestanaActiva() === 'respaldo') {
-        <div class="text-center py-12">
-          <p class="text-slate-400 dark:text-slate-500 text-sm">Próximamente.</p>
+        <h2 class="text-sm font-semibold text-slate-900 dark:text-white mb-1">Respaldo de datos</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+          Genera una copia de seguridad completa: base de datos y archivos de exámenes.
+        </p>
+
+        @if (errorRespaldo()) {
+        <div class="bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 rounded-lg p-3 text-sm mb-4">
+          {{ errorRespaldo() }}
         </div>
+        }
+
+        <button (click)="generarRespaldo()" [disabled]="generandoRespaldo()"
+          class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+          {{ generandoRespaldo() ? 'Generando respaldo...' : 'Generar respaldo ahora' }}
+        </button>
+
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-3">
+          El archivo se descargará automáticamente en formato .zip.
+        </p>
         }
 
       </div>
