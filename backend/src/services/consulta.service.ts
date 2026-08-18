@@ -1,4 +1,4 @@
-import { prisma } from "../db/prisma";
+import { obtenerPrisma } from "../db/prisma";
 
 export type CrearConsultaInput = {
     fecha: Date;
@@ -18,6 +18,7 @@ export type ActualizarConsultaInput = Partial<CrearConsultaInput>;
 
 export const consultaService = {
     async listar(desde?: string, hasta?: string) {
+        const prisma = obtenerPrisma();
         const where: Record<string, unknown> = { deleted_at: null };
 
         if (desde || hasta) {
@@ -38,6 +39,7 @@ export const consultaService = {
         });
     },
     async listarPorPaciente(id_paciente: number) {
+        const prisma = obtenerPrisma();
         return prisma.consulta.findMany({
             where: { id_paciente, deleted_at: null },
             orderBy: { fecha: "desc" },
@@ -45,6 +47,7 @@ export const consultaService = {
     },
 
     async buscarPorId(id_consulta: number) {
+        const prisma = obtenerPrisma();
         return prisma.consulta.findFirst({
             where: { id_consulta, deleted_at: null },
             include: {
@@ -55,6 +58,7 @@ export const consultaService = {
     },
 
     async crear(id_paciente: number, data: CrearConsultaInput) {
+        const prisma = obtenerPrisma();
         const paciente = await prisma.paciente.findFirst({
             where: { id_paciente, deleted_at: null },
         });
@@ -76,6 +80,7 @@ export const consultaService = {
     },
 
     async actualizar(id_consulta: number, data: ActualizarConsultaInput) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.consulta.findFirst({
             where: { id_consulta, deleted_at: null },
         });
@@ -89,6 +94,7 @@ export const consultaService = {
     },
 
     async eliminar(id_consulta: number) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.consulta.findFirst({
             where: { id_consulta, deleted_at: null },
         });

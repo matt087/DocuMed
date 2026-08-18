@@ -1,4 +1,4 @@
-import { prisma } from "../db/prisma";
+import { obtenerPrisma } from "../db/prisma";
 
 export type CrearExamenInput = {
     ruta_archivo: string;
@@ -10,6 +10,7 @@ export type ActualizarExamenInput = Partial<CrearExamenInput>;
 export const examenService = {
 
     async listarPorConsulta(id_consulta: number) {
+        const prisma = obtenerPrisma();
         return prisma.examen.findMany({
             where: { id_consulta, deleted_at: null },
             orderBy: { created_at: "asc" },
@@ -17,12 +18,14 @@ export const examenService = {
     },
 
     async buscarPorId(id_examen: number) {
+        const prisma = obtenerPrisma();
         return prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });
     },
 
     async crear(id_consulta: number, data: CrearExamenInput) {
+        const prisma = obtenerPrisma();
         const consulta = await prisma.consulta.findFirst({
             where: { id_consulta, deleted_at: null },
         });
@@ -35,6 +38,7 @@ export const examenService = {
     },
 
     async actualizar(id_examen: number, data: ActualizarExamenInput) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });
@@ -48,6 +52,7 @@ export const examenService = {
     },
 
     async eliminar(id_examen: number) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });

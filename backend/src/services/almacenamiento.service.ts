@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
-import { prisma } from "../db/prisma";
+import { obtenerPrisma } from "../db/prisma";
 import { obtenerRutaExamenes, establecerRutaExamenes } from "../config/app-config";
 
 async function listarArchivosRecursivo(dir: string): Promise<string[]> {
@@ -42,6 +42,7 @@ export const almacenamientoService = {
 
   async cambiarRuta(rutaNueva: string) {
     const rutaActual = obtenerRutaExamenes();
+    const prisma = obtenerPrisma();
 
     if (path.resolve(rutaActual) === path.resolve(rutaNueva)) {
       throw new Error("La nueva ruta es igual a la actual.");
