@@ -4,6 +4,7 @@ import fsPromises from "fs/promises";
 import path from "path";
 const archiver = require("archiver");
 import { obtenerRutaExamenes } from "../config/app-config";
+import { obtenerCarpetaDatos } from "../config/rutas-datos";
 
 interface DatosConexion {
   host: string;
@@ -92,7 +93,7 @@ export const respaldoService = {
     const datosConexion = parsearDatabaseUrl(databaseUrl);
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const carpetaTemp = path.join(process.cwd(), "temp", `respaldo_${timestamp}`);
+    const carpetaTemp = path.join(obtenerCarpetaDatos(), "temp", `respaldo_${timestamp}`);
     await fsPromises.mkdir(carpetaTemp, { recursive: true });
 
     const rutaSqlTemp = path.join(carpetaTemp, "base_de_datos.sql");
@@ -102,7 +103,7 @@ export const respaldoService = {
 
       const rutaExamenes = obtenerRutaExamenes();
       const nombreZip = `DocuMed_respaldo_${timestamp}.zip`;
-      const carpetaSalida = path.join(process.cwd(), "respaldos");
+      const carpetaSalida = path.join(obtenerCarpetaDatos(), "respaldos");
       await fsPromises.mkdir(carpetaSalida, { recursive: true });
       const rutaZipFinal = path.join(carpetaSalida, nombreZip);
 

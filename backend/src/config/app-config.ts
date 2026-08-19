@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
+import { obtenerCarpetaDatos } from "./rutas-datos";
 
-const CONFIG_PATH = path.join(process.cwd(), "config", "app-config.json");
-const RUTA_DEFECTO = path.join(process.cwd(), "uploads", "examenes");
+const CONFIG_PATH = path.join(obtenerCarpetaDatos(), "config", "app-config.json");
+const RUTA_DEFECTO = path.join(obtenerCarpetaDatos(), "uploads", "examenes");
 
 interface AppConfig {
   rutaExamenes: string;

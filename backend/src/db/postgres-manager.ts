@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import { obtenerCarpetaDatos } from "../config/rutas-datos";
 
 const EmbeddedPostgresModule = require("embedded-postgres");
 const EmbeddedPostgres = EmbeddedPostgresModule.default || EmbeddedPostgresModule;
@@ -11,7 +12,7 @@ const USUARIO = process.env.PG_EMBEBIDO_USUARIO;
 const PASSWORD = process.env.PG_EMBEBIDO_PASSWORD;
 const NOMBRE_BD = process.env.PG_EMBEBIDO_BASE_DATOS;
 
-const CARPETA_DATOS = path.join(process.cwd(), "pgdata");
+const CARPETA_DATOS = path.join(obtenerCarpetaDatos(), "pgdata");
 
 let instancia: any = null;
 

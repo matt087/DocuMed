@@ -4,6 +4,8 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
 
+app.setName("DocuMed");
+
 config({ path: path.join(__dirname, "..", ".env") });
 
 function obtenerVariableRequerida(nombre: string): string {
@@ -24,6 +26,7 @@ let cierreConfirmado = false;
 function iniciarProcesoBackend(): ChildProcess {
   const rutaBackend = path.join(__dirname, "..", "..", "backend");
   const rutaEntryBackend = path.join(rutaBackend, "src", "app.ts");
+  const rutaDatosUsuario = app.getPath("userData");
 
   const proceso = spawn(
     process.execPath,
@@ -33,6 +36,7 @@ function iniciarProcesoBackend(): ChildProcess {
       env: {
         ...process.env,
         ELECTRON_RUN_AS_NODE: "1",
+        DOCUMED_DATOS_DIR: rutaDatosUsuario, // NUEVO
       },
     }
   );
