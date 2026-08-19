@@ -54,14 +54,41 @@ async function iniciarServidor() {
   }
 }
 
-async function apagarLimpio(señal: string) {
-  console.log(`\nSeñal ${señal} recibida. Cerrando servidor...`);
-  await detenerPostgresEmbebido();
-  process.exit(0);
+let apagando = false;
+
+async function apagarLimpio(origen: string) {
+  if (apagando) {
+    return;
+  }
+
+  apagando = true;
+
+  console.log(`\nSolicitud de cierre recibida (${origen}). Cerrando servidor...`);
+
+  try {
+    await detenerPostgresEmbebido();
+  } catch (error) {
+    console.error("Error al detener PostgreSQL embebido:", error);
+  } finally {
+    process.exit(0);
+  }
 }
 
-process.on("SIGINT", () => apagarLimpio("SIGINT"));
-process.on("SIGTERM", () => apagarLimpio("SIGTERM"));
+process.stdin.on("data", (data) => {
+  const comando = data.toString().trim();
+
+  if (comando === "shutdown") {
+    void apagarLimpio("Electron");
+  }
+});
+
+process.on("SIGINT", () => {
+  void apagarLimpio("SIGINT");
+});
+
+process.on("SIGTERM", () => {
+  void apagarLimpio("SIGTERM");
+});
 
 process.on("uncaughtException", async (error) => {
   console.error("Excepción no capturada:", error);

@@ -122,7 +122,7 @@ app.whenReady().then(async () => {
     procesoBackend = iniciarProcesoBackend();
 
     console.log("Esperando a que el backend esté listo...");
-    await esperarBackend(BACKEND_URL_HEALTHCHECK);
+    await esperarBackend(BACKEND_URL_HEALTHCHECK, procesoBackend);
     console.log("Backend listo. Abriendo ventana...");
 
     await crearVentana();
@@ -138,11 +138,31 @@ app.on("window-all-closed", () => {
   }
 });
 
-app.on("before-quit", () => {
-  if (procesoBackend) {
-    console.log("Cerrando proceso del backend...");
-    procesoBackend.kill();
+let cierreBackendCompletado = false;
+
+app.on("before-quit", (evento) => {
+  if (cierreBackendCompletado) {
+    return;
   }
+
+  evento.preventDefault();
+
+  if (!procesoBackend || procesoBackend.exitCode !== null) {
+    cierreBackendCompletado = true;
+    app.quit();
+    return;
+  }
+
+  console.log("Solicitando cierre limpio del backend...");
+
+  procesoBackend.stdin?.write("shutdown\n");
+
+  procesoBackend.once("exit", () => {
+    console.log("Backend cerrado correctamente.");
+
+    cierreBackendCompletado = true;
+    app.quit();
+  });
 });
 
 ipcMain.handle("seleccionar-carpeta", async () => {
