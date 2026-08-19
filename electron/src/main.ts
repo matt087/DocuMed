@@ -59,6 +59,7 @@ async function crearVentana(): Promise<void> {
   ventanaPrincipal = new BrowserWindow({
     width: 1280,
     height: 800,
+    backgroundColor: "#1d293d",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
