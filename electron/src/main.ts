@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import path from "path";
-import { app, BrowserWindow, ipcMain, dialog} from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
 
@@ -66,13 +66,37 @@ async function crearVentana(): Promise<void> {
     },
   });
 
-  // TO-DO: distinguir dev/producción y cargar el build de Angular en ese caso.
-  await ventanaPrincipal.loadURL(FRONTEND_URL_DEV);
+  if (true) {
+    console.log("Modo producción: cargando Angular compilado...");
+
+    const rutaFrontend = path.join(
+      __dirname,
+      "..",
+      "..",
+      "frontend",
+      "dist",
+      "frontend",
+      "browser"
+    );
+
+    const indexPath = path.join(
+      rutaFrontend,
+      "index.csr.html"
+    );
+
+    await ventanaPrincipal.loadFile(indexPath, {
+      hash: "/"
+    }); 
+  } else {
+    console.log("Modo desarrollo:");
+    //await ventanaPrincipal.loadURL(FRONTEND_URL_DEV);
+  }
 
   ventanaPrincipal.on("close", (evento) => {
     if (cierreConfirmado) {
       return;
     }
+
     evento.preventDefault();
     ventanaPrincipal?.webContents.send("solicitar-confirmacion-cierre");
   });
