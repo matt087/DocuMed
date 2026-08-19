@@ -25,12 +25,14 @@ export class ConsultaForm implements OnInit {
 
   form = this.fb.nonNullable.group({
     fecha: ['', Validators.required],
-    peso: ['', Validators.required],
-    talla: ['', Validators.required],
-    presion_sistolica: ['', Validators.required],
-    presion_diastolica: ['', Validators.required],
-    temperatura: ['', Validators.required],
-    perimetro_cefalico: [''], // opcional
+
+    peso: ['', [Validators.required, Validators.min(0)]],
+    talla: ['', [Validators.required, Validators.min(0)]],
+    presion_sistolica: ['', [Validators.required, Validators.min(0)]],
+    presion_diastolica: ['', [Validators.required, Validators.min(0)]],
+    temperatura: ['', [Validators.required, Validators.min(0)]],
+    perimetro_cefalico: ['', Validators.min(0)], // opcional
+
     motivo_consulta: ['', Validators.required],
     enfermedad_actual: ['', Validators.required],
     examen_fisico: ['', Validators.required],
