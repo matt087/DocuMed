@@ -83,15 +83,29 @@ export const almacenamientoService = {
     // 3. ACTUALIZAR
     const examenes = await prisma.examen.findMany();
     const actualizaciones = examenes
-      .filter((ex) => ex.ruta_archivo.startsWith(rutaActual))
       .map((ex) => {
         const relativo = path.relative(rutaActual, ex.ruta_archivo);
+
+        const estaDentroDeLaRuta =
+          relativo !== "" &&
+          !relativo.startsWith("..") &&
+          !path.isAbsolute(relativo);
+
+        if (!estaDentroDeLaRuta) {
+          return null;
+        }
+
         const rutaNuevaArchivo = path.join(rutaNueva, relativo);
+
         return prisma.examen.update({
           where: { id_examen: ex.id_examen },
           data: { ruta_archivo: rutaNuevaArchivo },
         });
-      });
+      })
+      .filter(
+        (actualizacion): actualizacion is NonNullable<typeof actualizacion> =>
+          actualizacion !== null
+      );
 
     try {
       await prisma.$transaction(actualizaciones);

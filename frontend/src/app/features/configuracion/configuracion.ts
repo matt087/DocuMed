@@ -13,6 +13,7 @@ type Pestana = 'apariencia' | 'almacenamiento' | 'respaldo';
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.css',
 })
+
 export class Configuracion implements OnInit {
   themeService = inject(ThemeService);
   private configuracionService = inject(ConfiguracionService);
@@ -103,6 +104,16 @@ export class Configuracion implements OnInit {
         this.errorRespaldo.set('Ocurrió un error al generar el respaldo. Verifica que pg_dump esté disponible.');
         this.generandoRespaldo.set(false);
       },
+    });
+  }
+
+  seleccionarCarpetaNativa(): void {
+    if (!window.electronAPI) return;
+
+    window.electronAPI.seleccionarCarpeta().then((rutaElegida) => {
+      if (rutaElegida) {
+        this.nuevaRuta.set(rutaElegida);
+      }
     });
   }
 }

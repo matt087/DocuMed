@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import path from "path";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog} from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
 
@@ -119,4 +119,20 @@ app.on("before-quit", () => {
     console.log("Cerrando proceso del backend...");
     procesoBackend.kill();
   }
+});
+
+ipcMain.handle("seleccionar-carpeta", async () => {
+  if (!ventanaPrincipal) return null;
+
+  const resultado = await dialog.showOpenDialog(ventanaPrincipal, {
+    properties: ["openDirectory", "createDirectory"],
+    title: "Selecciona la carpeta para almacenar los exámenes",
+  });
+
+  if (resultado.canceled || resultado.filePaths.length === 0) {
+    return null;
+  }
+
+  const carpetaElegida = resultado.filePaths[0];
+  return path.join(carpetaElegida, "DocuMed", "examenes");
 });

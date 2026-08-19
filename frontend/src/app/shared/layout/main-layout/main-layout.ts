@@ -2,16 +2,6 @@ import { Component, signal, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      cerrarAplicacion: () => void;
-      confirmarCierreDesdeX: () => void;
-      onSolicitarConfirmacionCierre: (callback: () => void) => void;
-    };
-  }
-}
-
 @Component({
   selector: 'app-main-layout',
   standalone: true,

@@ -16,6 +16,11 @@ export type CrearConsultaInput = {
 
 export type ActualizarConsultaInput = Partial<CrearConsultaInput>;
 
+function obtenerFechaHoyUTC(): Date {
+  const ahora = new Date();
+  return new Date(Date.UTC(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()));
+}
+
 export const consultaService = {
     async listar(desde?: string, hasta?: string) {
         const prisma = obtenerPrisma();
@@ -72,7 +77,7 @@ export const consultaService = {
         if (!paciente.fecha_primera_consulta) {
             await prisma.paciente.update({
                 where: { id_paciente },
-                data: { fecha_primera_consulta: new Date() },
+                data: { fecha_primera_consulta: obtenerFechaHoyUTC() },
             });
         }
 

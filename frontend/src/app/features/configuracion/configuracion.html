@@ -19,7 +19,7 @@
           Apariencia
         </button>
         <button (click)="seleccionarPestana('almacenamiento')"
-          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer" 
+          class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
           [class.bg-blue-50]="pestanaActiva() === 'almacenamiento'"
           [class.text-blue-700]="pestanaActiva() === 'almacenamiento'"
           [class.dark:bg-blue-950]="pestanaActiva() === 'almacenamiento'"
@@ -47,7 +47,8 @@
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Elige cómo se ve DocuMed en tu pantalla.</p>
 
         <div class="flex gap-4">
-          <button (click)="themeService.establecer('claro')" class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
+          <button (click)="themeService.establecer('claro')"
+            class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
             [class.border-blue-500]="themeService.tema() === 'claro'"
             [class.border-slate-200]="themeService.tema() !== 'claro'"
             [class.dark:border-slate-700]="themeService.tema() !== 'claro'">
@@ -62,7 +63,8 @@
             <p class="text-sm font-medium text-slate-900 dark:text-white">Claro</p>
           </button>
 
-          <button (click)="themeService.establecer('oscuro')" class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
+          <button (click)="themeService.establecer('oscuro')"
+            class="flex-1 border-2 rounded-xl p-4 transition-colors cursor-pointer"
             [class.border-blue-500]="themeService.tema() === 'oscuro'"
             [class.border-slate-200]="themeService.tema() !== 'oscuro'"
             [class.dark:border-slate-700]="themeService.tema() !== 'oscuro'">
@@ -111,14 +113,24 @@
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Nueva ubicación
           </label>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
-            Escribe la ruta absoluta de la carpeta destino (ej. <code>D:\DocuMed\examenes</code>).
+
+          @if (nuevaRuta()) {
+          <p
+            class="text-sm font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 break-all mb-2">
+            {{ nuevaRuta() }}
           </p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mb-2">
+            Se creará una carpeta dedicada dentro de la ubicación elegida.
+          </p>
+          }
+
           <div class="flex gap-2">
-            <input type="text" [(ngModel)]="nuevaRuta" placeholder="C:\ruta\a\la\nueva\carpeta"
-              class="flex-1 border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <button (click)="seleccionarCarpetaNativa()"
+              class="border border-slate-200 dark:border-slate-700 dark:text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              Elegir carpeta...
+            </button>
             <button (click)="cambiarUbicacion()" [disabled]="cambiandoRuta() || !nuevaRuta().trim()"
-              class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex-shrink-0">
+              class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
               {{ cambiandoRuta() ? 'Moviendo archivos...' : 'Cambiar ubicación' }}
             </button>
           </div>

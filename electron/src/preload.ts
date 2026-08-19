@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onSolicitarConfirmacionCierre: (callback: () => void) => {
     ipcRenderer.on("solicitar-confirmacion-cierre", () => callback());
   },
+  seleccionarCarpeta: (): Promise<string | null> => ipcRenderer.invoke("seleccionar-carpeta"),
 });
