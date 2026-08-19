@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import path from "path";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
 
@@ -19,6 +19,7 @@ const FRONTEND_URL_DEV = obtenerVariableRequerida("FRONTEND_URL_DEV");
 
 let procesoBackend: ChildProcess | null = null;
 let ventanaPrincipal: BrowserWindow | null = null;
+let cierreConfirmado = false;
 
 function iniciarProcesoBackend(): ChildProcess {
   const rutaBackend = path.join(__dirname, "..", "..", "backend");
@@ -57,16 +58,35 @@ async function crearVentana(): Promise<void> {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
   // TO-DO: distinguir dev/producción y cargar el build de Angular en ese caso.
   await ventanaPrincipal.loadURL(FRONTEND_URL_DEV);
 
+  ventanaPrincipal.on("close", (evento) => {
+    if (cierreConfirmado) {
+      return;
+    }
+    evento.preventDefault();
+    ventanaPrincipal?.webContents.send("solicitar-confirmacion-cierre");
+  });
+
   ventanaPrincipal.on("closed", () => {
     ventanaPrincipal = null;
   });
 }
+
+ipcMain.on("cerrar-aplicacion", () => {
+  cierreConfirmado = true;
+  app.quit();
+});
+
+ipcMain.on("confirmar-cierre-desde-x", () => {
+  cierreConfirmado = true;
+  ventanaPrincipal?.close();
+});
 
 app.whenReady().then(async () => {
   try {
