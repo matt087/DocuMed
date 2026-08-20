@@ -169,6 +169,85 @@
         <p class="text-xs text-slate-400 dark:text-slate-500 mt-3">
           El archivo se descargará automáticamente en formato .zip.
         </p>
+
+        <div class="border-t border-slate-100 dark:border-slate-800 mt-6 pt-5">
+          <h3 class="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">Restaurar respaldo</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            Reemplaza todos los datos actuales con los de un archivo de respaldo (.zip). Esta acción no se puede
+            deshacer.
+          </p>
+
+          @if (errorRestaurar()) {
+          <div class="bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 rounded-lg p-3 text-sm mb-3">
+            {{ errorRestaurar() }}
+          </div>
+          }
+          @if (exitoRestaurar()) {
+          <div class="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-lg p-3 text-sm mb-3">
+            {{ exitoRestaurar() }}
+          </div>
+          }
+
+                    @if (!archivoRestaurar()) {
+          <label (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+            class="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors"
+            [class.border-blue-400]="arrastrandoArchivo()"
+            [class.dark:border-blue-500]="arrastrandoArchivo()"
+            [class.bg-blue-50]="arrastrandoArchivo()"
+            [class.dark:bg-blue-950]="arrastrandoArchivo()"
+            [class.border-slate-200]="!arrastrandoArchivo()"
+            [class.dark:border-slate-700]="!arrastrandoArchivo()"
+            [class.hover:border-blue-400]="!arrastrandoArchivo()"
+            [class.dark:hover:border-blue-500]="!arrastrandoArchivo()"
+            [class.hover:bg-slate-50]="!arrastrandoArchivo()"
+            [class.dark:hover:bg-slate-800/50]="!arrastrandoArchivo()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 transition-colors"
+              [class.text-blue-500]="arrastrandoArchivo()" [class.text-slate-400]="!arrastrandoArchivo()"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+              {{ arrastrandoArchivo() ? 'Suelta el archivo aquí' : 'Haz clic para elegir un archivo .zip' }}
+            </p>
+            <p class="text-xs text-slate-400 dark:text-slate-500">o arrástralo aquí</p>
+            <input type="file" accept=".zip" (change)="seleccionarArchivoRestaurar($event)" class="hidden" />
+          </label>
+          } @else {
+          <div
+            class="flex items-center justify-between gap-3 border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50 dark:bg-slate-800">
+            <div class="flex items-center gap-3 min-w-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-500 flex-shrink-0" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 13.5h6m-6 3h6m-7.5 6h9a2.25 2.25 0 002.25-2.25V6.75L14.25 2H6.75A2.25 2.25 0 004.5 4.25v15.5A2.25 2.25 0 006.75 21z" />
+              </svg>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
+                  {{ archivoRestaurar()?.name }}
+                </p>
+                <p class="text-xs text-slate-400 dark:text-slate-500">
+                  {{ formatearBytes(archivoRestaurar()?.size ?? 0) }}
+                </p>
+              </div>
+            </div>
+            <button (click)="limpiarArchivoRestaurar()" [disabled]="restaurando()"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex-shrink-0 cursor-pointer disabled:opacity-50"
+              title="Quitar archivo">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          }
+
+          <button (click)="confirmarRestaurar()" [disabled]="!archivoRestaurar() || restaurando()"
+            class="mt-3 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors cursor-pointer">
+            {{ restaurando() ? 'Restaurando...' : 'Restaurar respaldo' }}
+          </button>
+        </div>
+
         }
 
       </div>

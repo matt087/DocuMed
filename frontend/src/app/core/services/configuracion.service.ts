@@ -28,4 +28,10 @@ export class ConfiguracionService {
     generarRespaldo(): Observable<Blob> {
         return this.http.post(`${this.baseUrl}/respaldo`, {}, { responseType: 'blob' });
     }
+    
+    restaurarRespaldo(archivo: File): Observable<{ mensaje: string }> {
+        const formData = new FormData();
+        formData.append('archivo', archivo);
+        return this.http.post<{ mensaje: string }>(`${this.baseUrl}/respaldo/restaurar`, formData);
+    }
 }
