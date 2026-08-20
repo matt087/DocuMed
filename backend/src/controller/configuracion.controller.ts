@@ -34,10 +34,18 @@ export const configuracionController = {
   async generarRespaldo(_req: Request, res: Response) {
     try {
       const { rutaZip, nombreArchivo } = await respaldoService.generar();
-
-      res.download(rutaZip, nombreArchivo, (error) => {
+      res.download(rutaZip, nombreArchivo, async (error) => {
         if (error) {
           console.error("Error al enviar el archivo:", error);
+          // No se elimina: si la descarga falló o se cortó.
+          return;
+        }
+        // La transmisión terminó sin errores del lado del servidor.
+        try {
+          await fsPromises.rm(rutaZip, { force: true });
+          console.log(`Respaldo eliminado de userData/respaldos tras la descarga: ${nombreArchivo}`);
+        } catch (errorEliminar) {
+          console.error("No se pudo eliminar el respaldo tras la descarga:", errorEliminar);
         }
       });
     } catch (error) {
