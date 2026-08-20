@@ -33,6 +33,7 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
+    "esbuild": "^0.28.2",
     "tsx": "^4.19.0",
     "typescript": "^7.0.2"
   }

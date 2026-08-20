@@ -6,7 +6,38 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc && electron dist/main.js",
-    "build": "tsc"
+    "build": "tsc",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.documed.app",
+    "productName": "DocuMed",
+     "files": [
+      "dist/**/*",
+      "package.json",
+      ".env"
+    ],
+    "extraResources": [
+      {
+        "from": "backend.zip",
+        "to": "backend.zip"
+      },
+      {
+        "from": "../frontend/dist/frontend/browser",
+        "to": "frontend/browser",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "directories": {
+      "output": "release"
+    }
   },
   "keywords": [],
   "author": "",

@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:backend-deploy": "pnpm --filter backend run build && rimraf electron/resources-backend && pnpm --filter backend deploy --prod=false --legacy ./electron/resources-backend && pnpm --dir electron/resources-backend add @embedded-postgres/windows-x64@18.4.0-beta.17 --save-exact"
+    "build:backend-deploy": "pnpm --filter backend run build && rimraf electron/resources-backend && pnpm --filter backend deploy --prod=false --legacy --config.node-linker=hoisted ./electron/resources-backend && rimraf electron/backend.zip && node scripts/comprimir-backend.cjs",
+    "build:frontend": "pnpm --filter frontend exec ng build --base-href ./",
+    "build:electron": "pnpm --filter documed run build",
+    "build:app": "pnpm run build:frontend && pnpm run build:backend-deploy && pnpm run build:electron && pnpm --filter documed run dist"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +19,9 @@
       "onFail": "download"
     }
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "adm-zip": "^0.6.0",
+    "rimraf": "^6.1.3"
+  }
 }

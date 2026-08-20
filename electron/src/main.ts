@@ -3,10 +3,27 @@ import path from "path";
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
+import fs from "fs";
+import AdmZip from "adm-zip";
+
 
 app.setName("DocuMed");
 
 config({ path: path.join(__dirname, "..", ".env") });
+const rutaLog = path.join(app.getPath("userData"), "main-error.log");
+
+function escribirLog(linea: string): void {
+  const mensaje = `[${new Date().toISOString()}] ${linea}\n`;
+  console.log(mensaje);
+  try {
+    fs.appendFileSync(rutaLog, mensaje);
+  } catch {
+  }
+}
+
+function registrarError(contexto: string, error: unknown): void {
+  escribirLog(`ERROR ${contexto}: ${error instanceof Error ? error.stack : String(error)}`);
+}
 
 function obtenerVariableRequerida(nombre: string): string {
   const valor = process.env[nombre];
@@ -14,6 +31,41 @@ function obtenerVariableRequerida(nombre: string): string {
     throw new Error(`Falta la variable de entorno ${nombre}. Verifica tu archivo .env.`);
   }
   return valor;
+}
+
+function obtenerRutaBackendRuntime(): string {
+  return path.join(app.getPath("userData"), "backend-runtime");
+}
+
+function asegurarBackendExtraido(): string {
+  const rutaRuntime = obtenerRutaBackendRuntime();
+  const rutaMarcaVersion = path.join(rutaRuntime, ".version");
+  const versionActual = app.getVersion();
+
+  const yaExtraidoYActualizado =
+    fs.existsSync(rutaMarcaVersion) &&
+    fs.readFileSync(rutaMarcaVersion, "utf-8").trim() === versionActual;
+
+  if (yaExtraidoYActualizado) {
+    escribirLog(`Backend ya extraído para la versión ${versionActual}, reutilizando.`);
+    return rutaRuntime;
+  }
+
+  escribirLog(`Extrayendo backend (versión ${versionActual})...`);
+
+  if (fs.existsSync(rutaRuntime)) {
+    fs.rmSync(rutaRuntime, { recursive: true, force: true });
+  }
+  fs.mkdirSync(rutaRuntime, { recursive: true });
+
+  const rutaZip = path.join(process.resourcesPath, "backend.zip");
+  const zip = new AdmZip(rutaZip);
+  zip.extractAllTo(rutaRuntime, true);
+
+  fs.writeFileSync(rutaMarcaVersion, versionActual, "utf-8");
+  escribirLog("Backend extraído correctamente.");
+
+  return rutaRuntime;
 }
 
 const BACKEND_URL_HEALTHCHECK = obtenerVariableRequerida("BACKEND_URL_HEALTHCHECK");
@@ -24,32 +76,45 @@ let ventanaPrincipal: BrowserWindow | null = null;
 let cierreConfirmado = false;
 
 function iniciarProcesoBackend(): ChildProcess {
-  const rutaBackend = path.join(__dirname, "..", "..", "backend");
-  const rutaEntryBackend = path.join(rutaBackend, "src", "app.ts");
   const rutaDatosUsuario = app.getPath("userData");
+
+  let rutaBackend: string;
+  let argumentosNode: string[];
+
+  if (app.isPackaged) {
+    rutaBackend = asegurarBackendExtraido();
+    const rutaEntryBackend = path.join(rutaBackend, "dist", "app.js");
+    argumentosNode = [rutaEntryBackend];
+  } else {
+    rutaBackend = path.join(__dirname, "..", "..", "backend");
+    const rutaEntryBackend = path.join(rutaBackend, "src", "app.ts");
+    argumentosNode = ["--import", "tsx", rutaEntryBackend];
+  }
+
+  escribirLog(`Iniciando backend desde: ${rutaBackend}`);
 
   const proceso = spawn(
     process.execPath,
-    ["--import", "tsx", rutaEntryBackend],
+    argumentosNode,
     {
       cwd: rutaBackend,
       env: {
         ...process.env,
         ELECTRON_RUN_AS_NODE: "1",
-        DOCUMED_DATOS_DIR: rutaDatosUsuario, // NUEVO
+        DOCUMED_DATOS_DIR: rutaDatosUsuario,
       },
     }
   );
 
-  proceso.stdout?.on("data", (data) => console.log(`[backend] ${data.toString().trim()}`));
-  proceso.stderr?.on("data", (data) => console.error(`[backend] ${data.toString().trim()}`));
+  proceso.stdout?.on("data", (data) => escribirLog(`[backend] ${data.toString().trim()}`));
+  proceso.stderr?.on("data", (data) => escribirLog(`[backend] ${data.toString().trim()}`));
 
   proceso.on("exit", (codigo) => {
-    console.log(`El proceso del backend terminó con código ${codigo}`);
+    escribirLog(`El proceso del backend terminó con código ${codigo}`);
   });
 
   proceso.on("error", (error) => {
-    console.error("Error al spawnear el proceso del backend:", error);
+    registrarError("Error al spawnear el proceso del backend", error);
   });
 
   return proceso;
@@ -67,8 +132,17 @@ async function crearVentana(): Promise<void> {
     },
   });
 
-  const rutaFrontend = path.join(__dirname, "..", "..", "frontend", "dist", "frontend", "browser");
-  const indexPath = path.join(rutaFrontend, "index.csr.html");
+  let indexPath: string;
+
+  if (app.isPackaged) {
+    console.log("Modo producción: cargando Angular compilado...");
+    const rutaFrontend = path.join(process.resourcesPath, "frontend", "browser");
+    indexPath = path.join(rutaFrontend, "index.csr.html");
+  } else {
+    console.log("Modo desarrollo: cargando Angular compilado localmente...");
+    const rutaFrontend = path.join(__dirname, "..", "..", "frontend", "dist", "frontend", "browser");
+    indexPath = path.join(rutaFrontend, "index.csr.html");
+  }
 
   ventanaPrincipal.webContents.on("did-fail-load", (_evento, codigoError, descripcion, urlFallida) => {
     console.error(`Falló la carga de: ${urlFallida} (${codigoError} - ${descripcion})`);
@@ -76,37 +150,10 @@ async function crearVentana(): Promise<void> {
     ventanaPrincipal?.loadFile(indexPath, { hash: "/" });
   });
 
-  if (true) {
-    console.log("Modo producción: cargando Angular compilado...");
-
-    const rutaFrontend = path.join(
-      __dirname,
-      "..",
-      "..",
-      "frontend",
-      "dist",
-      "frontend",
-      "browser"
-    );
-
-    const indexPath = path.join(
-      rutaFrontend,
-      "index.csr.html"
-    );
-
-    await ventanaPrincipal.loadFile(indexPath, {
-      hash: "/"
-    }); 
-  } else {
-    console.log("Modo desarrollo:");
-    //await ventanaPrincipal.loadURL(FRONTEND_URL_DEV);
-  }
+  await ventanaPrincipal.loadFile(indexPath, { hash: "/" });
 
   ventanaPrincipal.on("close", (evento) => {
-    if (cierreConfirmado) {
-      return;
-    }
-
+    if (cierreConfirmado) return;
     evento.preventDefault();
     ventanaPrincipal?.webContents.send("solicitar-confirmacion-cierre");
   });
@@ -128,16 +175,20 @@ ipcMain.on("confirmar-cierre-desde-x", () => {
 
 app.whenReady().then(async () => {
   try {
-    console.log("Iniciando proceso del backend...");
+    escribirLog("Iniciando proceso del backend...");
     procesoBackend = iniciarProcesoBackend();
 
-    console.log("Esperando a que el backend esté listo...");
+    escribirLog("Esperando a que el backend esté listo...");
     await esperarBackend(BACKEND_URL_HEALTHCHECK, procesoBackend);
-    console.log("Backend listo. Abriendo ventana...");
+    escribirLog("Backend listo. Abriendo ventana...");
 
     await crearVentana();
   } catch (error) {
-    console.error("Error fatal al iniciar la aplicación:", error);
+    registrarError("Error fatal al iniciar la aplicación", error);
+    dialog.showErrorBox(
+      "Error al iniciar DocuMed",
+      `${error instanceof Error ? error.message : String(error)}\n\nRevisá el registro completo en:\n${rutaLog}`
+    );
     app.quit();
   }
 });
