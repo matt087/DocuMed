@@ -1,10 +1,11 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
+import multer from "multer";
+
 import { iniciarPostgresEmbebido, detenerPostgresEmbebido } from "./db/postgres-manager";
 import { ejecutarMigraciones } from "./db/ejecutar-migraciones";
 import { inicializarPrisma } from "./db/prisma";
-
 import pacienteRoutes from "./routes/paciente.routes";
 import { contactoRoutesFlat } from "./routes/contacto.routes";
 import { antecedenteRoutesFlat } from "./routes/antecedente.routes";
@@ -44,6 +45,17 @@ async function iniciarServidor() {
     app.use("/indicaciones", indicacionRoutesFlat);
     app.use("/examenes", examenRoutesFlat);
     app.use("/configuracion", configuracionRoutes);
+
+    app.use((err: Error, _req: Request, res: Response, _next: express.NextFunction) => {
+      console.error("Error no manejado:", err);
+
+      if (err instanceof multer.MulterError) {
+        res.status(400).json({ error: `Error al procesar el archivo: ${err.message}` });
+        return;
+      }
+
+      res.status(500).json({ error: err.message || "Error interno del servidor" });
+    });
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
