@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:backend-deploy": "pnpm --filter backend run build && rimraf electron/resources-backend && pnpm --filter backend deploy --prod=false --legacy ./electron/resources-backend && pnpm --dir electron/resources-backend add @embedded-postgres/windows-x64@18.4.0-beta.17 --save-exact"
   },
   "keywords": [],
   "author": "",
