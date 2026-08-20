@@ -24,9 +24,17 @@ async function iniciarServidor() {
 
     const app = express();
 
-    app.use(
+     app.use(
       cors({
-        origin: "http://localhost:4200",
+        origin: (origin, callback) => {
+          const origenesPermitidos = ["http://localhost:4200", "null"];
+
+          if (!origin || origenesPermitidos.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Origen no permitido por CORS"));
+          }
+        },
       })
     );
     app.use(express.json());
