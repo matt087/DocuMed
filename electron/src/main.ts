@@ -67,6 +67,15 @@ async function crearVentana(): Promise<void> {
     },
   });
 
+  const rutaFrontend = path.join(__dirname, "..", "..", "frontend", "dist", "frontend", "browser");
+  const indexPath = path.join(rutaFrontend, "index.csr.html");
+
+  ventanaPrincipal.webContents.on("did-fail-load", (_evento, codigoError, descripcion, urlFallida) => {
+    console.error(`Falló la carga de: ${urlFallida} (${codigoError} - ${descripcion})`);
+    console.log("Recuperando: recargando la aplicación desde el estado inicial...");
+    ventanaPrincipal?.loadFile(indexPath, { hash: "/" });
+  });
+
   if (true) {
     console.log("Modo producción: cargando Angular compilado...");
 
