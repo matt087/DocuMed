@@ -23,20 +23,41 @@ async function listarArchivosRecursivo(dir: string): Promise<string[]> {
 }
 
 export const almacenamientoService = {
-  async obtenerInfo() {
+   async obtenerInfo() {
     const ruta = obtenerRutaExamenes();
-    const archivos = await listarArchivosRecursivo(ruta);
+    const prisma = obtenerPrisma();
 
+    const examenesActivos = await prisma.examen.findMany({
+      where: { deleted_at: null },
+      select: { ruta_archivo: true },
+    });
+
+    let cantidadArchivos = 0;
     let espacioUsadoBytes = 0;
-    for (const archivo of archivos) {
-      const stats = await fs.stat(archivo);
-      espacioUsadoBytes += stats.size;
+    let archivosFaltantes = 0;
+
+    for (const examen of examenesActivos) {
+      try {
+        const stats = await fs.stat(examen.ruta_archivo);
+        cantidadArchivos++;
+        espacioUsadoBytes += stats.size;
+      } catch {
+        archivosFaltantes++;
+      }
     }
+
+    const archivosEnDisco = await listarArchivosRecursivo(ruta);
+    const rutasActivas = new Set(examenesActivos.map((e) => path.resolve(e.ruta_archivo)));
+    const archivosHuerfanos = archivosEnDisco.filter(
+      (archivo) => !rutasActivas.has(path.resolve(archivo))
+    ).length;
 
     return {
       ruta,
-      cantidadArchivos: archivos.length,
+      cantidadArchivos,
       espacioUsadoBytes,
+      archivosFaltantes,
+      archivosHuerfanos,
     };
   },
 

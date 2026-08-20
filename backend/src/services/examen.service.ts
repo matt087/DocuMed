@@ -1,3 +1,5 @@
+import fs from "fs/promises";
+import fsSync from "fs";
 import { obtenerPrisma } from "../db/prisma";
 
 export type CrearExamenInput = {
@@ -59,9 +61,19 @@ export const examenService = {
 
         if (!existente) return null;
 
-        return prisma.examen.update({
+        const actualizado = await prisma.examen.update({
             where: { id_examen },
             data: { deleted_at: new Date() },
         });
+
+        try {
+            if (fsSync.existsSync(existente.ruta_archivo)) {
+                await fs.unlink(existente.ruta_archivo);
+            }
+        } catch (error) {
+            console.error(`No se pudo eliminar el archivo físico del examen ${id_examen}:`, error);
+        }
+
+        return actualizado;
     },
 };

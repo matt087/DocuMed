@@ -7,6 +7,8 @@ export interface InfoAlmacenamiento {
     ruta: string;
     cantidadArchivos: number;
     espacioUsadoBytes: number;
+    archivosFaltantes: number;
+    archivosHuerfanos: number;
 }
 
 @Injectable({ providedIn: "root" })
