@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
-import { prisma } from "../db/prisma";
+import { obtenerPrisma } from "../db/prisma";
 import { obtenerRutaExamenes, establecerRutaExamenes } from "../config/app-config";
 
 async function listarArchivosRecursivo(dir: string): Promise<string[]> {
@@ -23,25 +23,47 @@ async function listarArchivosRecursivo(dir: string): Promise<string[]> {
 }
 
 export const almacenamientoService = {
-  async obtenerInfo() {
+   async obtenerInfo() {
     const ruta = obtenerRutaExamenes();
-    const archivos = await listarArchivosRecursivo(ruta);
+    const prisma = obtenerPrisma();
 
+    const examenesActivos = await prisma.examen.findMany({
+      where: { deleted_at: null },
+      select: { ruta_archivo: true },
+    });
+
+    let cantidadArchivos = 0;
     let espacioUsadoBytes = 0;
-    for (const archivo of archivos) {
-      const stats = await fs.stat(archivo);
-      espacioUsadoBytes += stats.size;
+    let archivosFaltantes = 0;
+
+    for (const examen of examenesActivos) {
+      try {
+        const stats = await fs.stat(examen.ruta_archivo);
+        cantidadArchivos++;
+        espacioUsadoBytes += stats.size;
+      } catch {
+        archivosFaltantes++;
+      }
     }
+
+    const archivosEnDisco = await listarArchivosRecursivo(ruta);
+    const rutasActivas = new Set(examenesActivos.map((e) => path.resolve(e.ruta_archivo)));
+    const archivosHuerfanos = archivosEnDisco.filter(
+      (archivo) => !rutasActivas.has(path.resolve(archivo))
+    ).length;
 
     return {
       ruta,
-      cantidadArchivos: archivos.length,
+      cantidadArchivos,
       espacioUsadoBytes,
+      archivosFaltantes,
+      archivosHuerfanos,
     };
   },
 
   async cambiarRuta(rutaNueva: string) {
     const rutaActual = obtenerRutaExamenes();
+    const prisma = obtenerPrisma();
 
     if (path.resolve(rutaActual) === path.resolve(rutaNueva)) {
       throw new Error("La nueva ruta es igual a la actual.");
@@ -82,15 +104,29 @@ export const almacenamientoService = {
     // 3. ACTUALIZAR
     const examenes = await prisma.examen.findMany();
     const actualizaciones = examenes
-      .filter((ex) => ex.ruta_archivo.startsWith(rutaActual))
       .map((ex) => {
         const relativo = path.relative(rutaActual, ex.ruta_archivo);
+
+        const estaDentroDeLaRuta =
+          relativo !== "" &&
+          !relativo.startsWith("..") &&
+          !path.isAbsolute(relativo);
+
+        if (!estaDentroDeLaRuta) {
+          return null;
+        }
+
         const rutaNuevaArchivo = path.join(rutaNueva, relativo);
+
         return prisma.examen.update({
           where: { id_examen: ex.id_examen },
           data: { ruta_archivo: rutaNuevaArchivo },
         });
-      });
+      })
+      .filter(
+        (actualizacion): actualizacion is NonNullable<typeof actualizacion> =>
+          actualizacion !== null
+      );
 
     try {
       await prisma.$transaction(actualizaciones);

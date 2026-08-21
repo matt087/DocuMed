@@ -51,3 +51,8 @@ Thumbs.db
 #Exámenes
 backend/uploads
 backend/config
+
+#Electron
+electron/resources-backend
+scripts/native-deps/node_modules/
+scripts/native-deps/package-lock.json

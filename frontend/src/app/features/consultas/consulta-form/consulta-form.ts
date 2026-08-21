@@ -25,12 +25,14 @@ export class ConsultaForm implements OnInit {
 
   form = this.fb.nonNullable.group({
     fecha: ['', Validators.required],
-    peso: ['', Validators.required],
-    talla: ['', Validators.required],
-    presion_sistolica: ['', Validators.required],
-    presion_diastolica: ['', Validators.required],
-    temperatura: ['', Validators.required],
-    perimetro_cefalico: [''], // opcional
+
+    peso: ['', [Validators.required, Validators.min(0)]],
+    talla: ['', [Validators.required, Validators.min(0)]],
+    presion_sistolica: ['', [Validators.required, Validators.min(0)]],
+    presion_diastolica: ['', [Validators.required, Validators.min(0)]],
+    temperatura: ['', [Validators.required, Validators.min(0)]],
+    perimetro_cefalico: ['', Validators.min(0)], // opcional
+
     motivo_consulta: ['', Validators.required],
     enfermedad_actual: ['', Validators.required],
     examen_fisico: ['', Validators.required],
@@ -58,7 +60,11 @@ export class ConsultaForm implements OnInit {
       presion_sistolica: Number(v.presion_sistolica),
       presion_diastolica: Number(v.presion_diastolica),
       temperatura: Number(v.temperatura),
-      perimetro_cefalico: v.perimetro_cefalico.trim() === '' ? null : Number(v.perimetro_cefalico),
+      perimetro_cefalico:
+        v.perimetro_cefalico !== null &&
+          v.perimetro_cefalico !== ''
+          ? Number(v.perimetro_cefalico)
+          : null,
       motivo_consulta: v.motivo_consulta,
       enfermedad_actual: v.enfermedad_actual,
       examen_fisico: v.examen_fisico,

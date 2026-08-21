@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -8,18 +9,32 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
-export class MainLayout {
+export class MainLayout implements OnInit {
   colapsado = signal(false);
+  private platformId = inject(PLATFORM_ID);
+
+  ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    window.electronAPI?.onSolicitarConfirmacionCierre(() => {
+      const confirmado = confirm('¿Deseas cerrar la aplicación?');
+      if (confirmado) {
+        window.electronAPI?.confirmarCierreDesdeX();
+      }
+    });
+  }
 
   alternarColapso(): void {
     this.colapsado.update((valor) => !valor);
   }
 
   cerrarAplicacion(): void {
-    // TODO: cuando se integre Electron, reemplazar por la llamada IPC real
-    // para cerrar la ventana nativa en lugar de depender del comportamiento del navegador.
     const confirmado = confirm('¿Deseas cerrar la aplicación?');
-    if (confirmado) {
+    if (!confirmado) return;
+
+    if (window.electronAPI) {
+      window.electronAPI.cerrarAplicacion();
+    } else {
       window.close();
     }
   }

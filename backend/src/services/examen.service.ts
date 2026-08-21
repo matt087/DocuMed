@@ -1,4 +1,6 @@
-import { prisma } from "../db/prisma";
+import fs from "fs/promises";
+import fsSync from "fs";
+import { obtenerPrisma } from "../db/prisma";
 
 export type CrearExamenInput = {
     ruta_archivo: string;
@@ -10,6 +12,7 @@ export type ActualizarExamenInput = Partial<CrearExamenInput>;
 export const examenService = {
 
     async listarPorConsulta(id_consulta: number) {
+        const prisma = obtenerPrisma();
         return prisma.examen.findMany({
             where: { id_consulta, deleted_at: null },
             orderBy: { created_at: "asc" },
@@ -17,12 +20,14 @@ export const examenService = {
     },
 
     async buscarPorId(id_examen: number) {
+        const prisma = obtenerPrisma();
         return prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });
     },
 
     async crear(id_consulta: number, data: CrearExamenInput) {
+        const prisma = obtenerPrisma();
         const consulta = await prisma.consulta.findFirst({
             where: { id_consulta, deleted_at: null },
         });
@@ -35,6 +40,7 @@ export const examenService = {
     },
 
     async actualizar(id_examen: number, data: ActualizarExamenInput) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });
@@ -48,15 +54,26 @@ export const examenService = {
     },
 
     async eliminar(id_examen: number) {
+        const prisma = obtenerPrisma();
         const existente = await prisma.examen.findFirst({
             where: { id_examen, deleted_at: null },
         });
 
         if (!existente) return null;
 
-        return prisma.examen.update({
+        const actualizado = await prisma.examen.update({
             where: { id_examen },
             data: { deleted_at: new Date() },
         });
+
+        try {
+            if (fsSync.existsSync(existente.ruta_archivo)) {
+                await fs.unlink(existente.ruta_archivo);
+            }
+        } catch (error) {
+            console.error(`No se pudo eliminar el archivo físico del examen ${id_examen}:`, error);
+        }
+
+        return actualizado;
     },
 };

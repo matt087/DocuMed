@@ -1,4 +1,4 @@
-import {prisma} from "../db/prisma";
+import {obtenerPrisma } from "../db/prisma";
 
 export type CrearPacienteInput = {
     nombres: string;
@@ -16,6 +16,7 @@ export type ActualizarPacienteInput = Partial<CrearPacienteInput>;
 
 export const pacienteService = {
     async listar(){
+        const prisma = obtenerPrisma();
         return prisma.paciente.findMany({
             where: {deleted_at: null},
             orderBy: {apellidos: "asc"}
@@ -23,6 +24,7 @@ export const pacienteService = {
     },
 
     async buscarPorId(id_paciente: number){
+        const prisma = obtenerPrisma();
         return prisma.paciente.findFirst({
             where: {id_paciente, deleted_at: null},
             include: {
@@ -33,10 +35,12 @@ export const pacienteService = {
     },
 
     async crear(data: CrearPacienteInput){
+        const prisma = obtenerPrisma();
         return prisma.paciente.create({data});
     },
 
     async actualizar(id_paciente: number, data: ActualizarPacienteInput){
+        const prisma = obtenerPrisma();
         const existe = await prisma.paciente.findFirst({
             where: {id_paciente, deleted_at: null},
         });
@@ -50,6 +54,7 @@ export const pacienteService = {
     },
 
     async eliminar(id_paciente: number){
+        const prisma = obtenerPrisma();     
         const existe = await prisma.paciente.findFirst({
             where: {id_paciente, deleted_at: null},
         });

@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../core/services/theme.service';
@@ -13,9 +14,11 @@ type Pestana = 'apariencia' | 'almacenamiento' | 'respaldo';
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.css',
 })
+
 export class Configuracion implements OnInit {
   themeService = inject(ThemeService);
   private configuracionService = inject(ConfiguracionService);
+  private router = inject(Router);
 
   pestanaActiva = signal<Pestana>('apariencia');
 
@@ -29,6 +32,12 @@ export class Configuracion implements OnInit {
   generandoRespaldo = signal(false);
   errorRespaldo = signal<string | null>(null);
 
+  archivoRestaurar = signal<File | null>(null);
+  restaurando = signal(false);
+  errorRestaurar = signal<string | null>(null);
+  exitoRestaurar = signal<string | null>(null);
+
+  arrastrandoArchivo = signal(false);
 
   ngOnInit(): void {
     this.cargarAlmacenamiento();
@@ -104,5 +113,86 @@ export class Configuracion implements OnInit {
         this.generandoRespaldo.set(false);
       },
     });
+  }
+
+  seleccionarCarpetaNativa(): void {
+    if (!window.electronAPI) return;
+
+    window.electronAPI.seleccionarCarpeta().then((rutaElegida) => {
+      if (rutaElegida) {
+        this.nuevaRuta.set(rutaElegida);
+      }
+    });
+  }
+
+  seleccionarArchivoRestaurar(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.archivoRestaurar.set(input.files?.[0] ?? null);
+    this.errorRestaurar.set(null);
+    this.exitoRestaurar.set(null);
+  }
+
+   limpiarArchivoRestaurar(): void {
+    this.archivoRestaurar.set(null);
+    this.errorRestaurar.set(null);
+    this.exitoRestaurar.set(null);
+  }
+
+  confirmarRestaurar(): void {
+    const archivo = this.archivoRestaurar();
+    if (!archivo) return;
+
+    const confirmado = confirm(
+      'Esta acción reemplazará TODOS los datos actuales (pacientes, consultas, exámenes) ' +
+      'con los del respaldo seleccionado. Esta acción no se puede deshacer. ¿Continuar?'
+    );
+    if (!confirmado) return;
+
+    this.restaurando.set(true);
+    this.errorRestaurar.set(null);
+    this.exitoRestaurar.set(null);
+
+    this.configuracionService.restaurarRespaldo(archivo).subscribe({
+      next: () => {
+        this.exitoRestaurar.set('Restauración completada.');
+        this.restaurando.set(false);
+        this.router.navigateByUrl('/', { skipLocationChange: false }).then(() => {
+        });
+      },
+      error: (err) => {
+        this.errorRestaurar.set(err?.error?.error ?? 'Ocurrió un error al restaurar el respaldo.');
+        this.restaurando.set(false);
+      },
+    });
+  }
+
+    onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(false);
+
+    const archivo = event.dataTransfer?.files?.[0];
+    if (!archivo) return;
+
+    if (!archivo.name.toLowerCase().endsWith('.zip')) {
+      this.errorRestaurar.set('El archivo debe ser un .zip');
+      return;
+    }
+
+    this.archivoRestaurar.set(archivo);
+    this.errorRestaurar.set(null);
+    this.exitoRestaurar.set(null);
   }
 }

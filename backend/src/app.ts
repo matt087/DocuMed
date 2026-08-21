@@ -1,6 +1,13 @@
 import "dotenv/config";
-import express, {Request, Response} from "express";
+
+import express, { Request, Response } from "express";
 import cors from "cors";
+import multer from "multer";
+import path from "path";
+
+import { ejecutarMigraciones } from "./db/ejecutar-migraciones";
+import { inicializarPrisma, obtenerPrisma } from "./db/prisma";
+import { obtenerCarpetaDatos } from "./config/rutas-datos";
 
 import pacienteRoutes from "./routes/paciente.routes";
 import { contactoRoutesFlat } from "./routes/contacto.routes";
@@ -10,31 +17,162 @@ import { indicacionRoutesFlat } from "./routes/indicaciones.routes";
 import { examenRoutesFlat } from "./routes/examen.routes";
 import { configuracionRoutes } from "./routes/configuracion.routes";
 
-const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-app.use(
-  cors({
-    origin: "http://localhost:4200",
-  })
-);
-app.use(express.json());
+async function iniciarServidor() {
+  try {
+    console.log("Inicializando base de datos SQLite...");
 
-app.get("/", (_req: Request, res: Response)=>{
-    res.json({
+    const carpetaDatos = obtenerCarpetaDatos();
+
+    const rutaBaseDatos = path.join(
+      carpetaDatos,
+      "documed.db"
+    );
+
+    const databaseUrl = `file:${rutaBaseDatos}`;
+
+    console.log(`Base de datos: ${rutaBaseDatos}`);
+
+    await ejecutarMigraciones(databaseUrl);
+
+    inicializarPrisma(databaseUrl);
+
+    console.log("Base de datos SQLite lista.");
+
+    const app = express();
+
+    app.use(
+      cors({
+        origin: (origin, callback) => {
+          const origenesPermitidos = [
+            "http://localhost:4200",
+            "null",
+          ];
+
+          if (!origin || origenesPermitidos.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(
+              new Error("Origen no permitido por CORS")
+            );
+          }
+        },
+      })
+    );
+
+    app.use(express.json());
+
+    app.get("/", (_req: Request, res: Response) => {
+      res.json({
         status: "ok",
         timestamp: new Date().toISOString(),
+      });
     });
+
+    app.use("/pacientes", pacienteRoutes);
+    app.use("/contactos", contactoRoutesFlat);
+    app.use("/antecedentes", antecedenteRoutesFlat);
+    app.use("/consultas", consultaRoutesFlat);
+    app.use("/indicaciones", indicacionRoutesFlat);
+    app.use("/examenes", examenRoutesFlat);
+    app.use("/configuracion", configuracionRoutes);
+
+    app.use(
+      (
+        err: Error,
+        _req: Request,
+        res: Response,
+        _next: express.NextFunction
+      ) => {
+        console.error("Error no manejado:", err);
+
+        if (err instanceof multer.MulterError) {
+          res.status(400).json({
+            error: `Error al procesar el archivo: ${err.message}`,
+          });
+
+          return;
+        }
+
+        res.status(500).json({
+          error: err.message || "Error interno del servidor",
+        });
+      }
+    );
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(
+        `Servidor backend corriendo en http://localhost:${PORT}`
+      );
+    });
+  } catch (error) {
+    console.error(
+      "Error fatal al iniciar el servidor:",
+      error
+    );
+
+    process.exit(1);
+  }
+}
+
+let apagando = false;
+
+async function apagarLimpio(origen: string) {
+  if (apagando) {
+    return;
+  }
+
+  apagando = true;
+
+  console.log(
+    `\nSolicitud de cierre recibida (${origen}). Cerrando servidor...`
+  );
+
+  try {
+    const prisma = obtenerPrisma();
+
+    await prisma.$disconnect();
+
+    console.log("Conexión con SQLite cerrada correctamente.");
+  } catch (error) {
+    console.error(
+      "Error al cerrar la conexión con SQLite:",
+      error
+    );
+  } finally {
+    process.exit(0);
+  }
+}
+
+process.stdin.on("data", (data) => {
+  const comando = data.toString().trim();
+
+  if (comando === "shutdown") {
+    void apagarLimpio("Electron");
+  }
 });
 
-app.use("/pacientes", pacienteRoutes);
-app.use("/contactos", contactoRoutesFlat);
-app.use("/antecedentes", antecedenteRoutesFlat);
-app.use("/consultas", consultaRoutesFlat);
-app.use("/indicaciones", indicacionRoutesFlat);
-app.use("/examenes", examenRoutesFlat);
-app.use("/configuracion", configuracionRoutes);
-
-app.listen(PORT, () =>{
-    console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+process.on("SIGINT", () => {
+  void apagarLimpio("SIGINT");
 });
+
+process.on("SIGTERM", () => {
+  void apagarLimpio("SIGTERM");
+});
+
+process.on("uncaughtException", async (error) => {
+  console.error("Excepción no capturada:", error);
+
+  try {
+    const prisma = obtenerPrisma();
+
+    await prisma.$disconnect();
+  } catch {
+    // Si Prisma todavía no se inicializó, simplemente salimos.
+  }
+
+  process.exit(1);
+});
+
+iniciarServidor();

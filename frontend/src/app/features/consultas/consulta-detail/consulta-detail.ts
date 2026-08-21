@@ -41,6 +41,8 @@ export class ConsultaDetail implements OnInit {
     errorExamen = signal<string | null>(null);
     archivoSeleccionado = signal<File | null>(null);
 
+    arrastrandoArchivo = signal(false);
+
     ngOnInit(): void {
         this.idConsulta = Number(this.route.snapshot.paramMap.get('id'));
         this.origenListado.set(this.route.snapshot.queryParamMap.get('origen') === 'listado');
@@ -139,4 +141,34 @@ export class ConsultaDetail implements OnInit {
     abrirExamen(id_examen: number): void {
         window.open(this.examenService.obtenerUrlArchivo(id_examen), '_blank');
     }
+
+     onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.arrastrandoArchivo.set(false);
+
+    const archivo = event.dataTransfer?.files?.[0];
+    if (!archivo) return;
+
+    this.archivoSeleccionado.set(archivo);
+    this.errorExamen.set(null);
+  }
+
+  formatearBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
 }

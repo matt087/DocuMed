@@ -1,4 +1,4 @@
-import { prisma } from "../db/prisma";
+import { obtenerPrisma } from "../db/prisma";
 
 export type CrearAntecedenteInput = {
     tipo: string,
@@ -11,6 +11,7 @@ const TIPOS_VALIDOS = ["Personal", "Familiar", "GO"];
 
 export const antecedenteService = ({
     async listarPorPaciente(id_paciente: number){
+        const prisma = obtenerPrisma();
         return prisma.antecedente.findMany({
             where: {id_paciente, deleted_at: null},
             orderBy: {tipo: "asc"},
@@ -18,12 +19,14 @@ export const antecedenteService = ({
     },
 
     async buscarPorId(id_antecedentes: number){
+        const prisma = obtenerPrisma();
         return prisma.antecedente.findFirst({
             where: ({id_antecedentes, deleted_at: null}),
         })
     },
 
     async crear(id_paciente: number, data: CrearAntecedenteInput){
+        const prisma = obtenerPrisma();
         const paciente = await prisma.paciente.findFirst({
             where: ({id_paciente, deleted_at: null})
         });
@@ -36,6 +39,7 @@ export const antecedenteService = ({
     },
 
     async actualizar(id_antecedentes: number, data: ActualizarAntecedenteInput){
+        const prisma = obtenerPrisma();
         const antecedente = await prisma.antecedente.findFirst({
             where: ({id_antecedentes, deleted_at: null}),
         });
@@ -49,6 +53,7 @@ export const antecedenteService = ({
     },
 
     async eliminar(id_antecedentes: number){
+        const prisma = obtenerPrisma();
         const antecedente = await prisma.antecedente.findFirst({
             where: {id_antecedentes, deleted_at: null},
         });
