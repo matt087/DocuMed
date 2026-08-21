@@ -60,7 +60,11 @@ export class ConsultaForm implements OnInit {
       presion_sistolica: Number(v.presion_sistolica),
       presion_diastolica: Number(v.presion_diastolica),
       temperatura: Number(v.temperatura),
-      perimetro_cefalico: v.perimetro_cefalico.trim() === '' ? null : Number(v.perimetro_cefalico),
+      perimetro_cefalico:
+        v.perimetro_cefalico !== null &&
+          v.perimetro_cefalico !== ''
+          ? Number(v.perimetro_cefalico)
+          : null,
       motivo_consulta: v.motivo_consulta,
       enfermedad_actual: v.enfermedad_actual,
       examen_fisico: v.examen_fisico,
