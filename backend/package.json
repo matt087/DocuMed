@@ -5,7 +5,8 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && node build.js",
     "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,28 +14,27 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.9.0",
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
     "@prisma/client": "^7.9.0",
     "adm-zip": "^0.6.0",
     "archiver": "7.0.1",
+    "better-sqlite3": "13.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "embedded-postgres": "18.4.0-beta.17",
     "express": "^5.2.1",
-    "multer": "^2.2.0",
-    "pg": "^8.22.0",
-    "prisma": "^7.9.0"
+    "multer": "^2.2.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",
     "@types/archiver": "^8.0.0",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^20.19.43",
-    "@types/pg": "^8.23.1",
     "esbuild": "^0.28.2",
     "tsx": "^4.19.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "prisma": "^7.9.0"
   }
 }

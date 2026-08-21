@@ -1,11 +1,14 @@
 import "dotenv/config";
+
 import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
+import path from "path";
 
-import { iniciarPostgresEmbebido, detenerPostgresEmbebido } from "./db/postgres-manager";
 import { ejecutarMigraciones } from "./db/ejecutar-migraciones";
-import { inicializarPrisma } from "./db/prisma";
+import { inicializarPrisma, obtenerPrisma } from "./db/prisma";
+import { obtenerCarpetaDatos } from "./config/rutas-datos";
+
 import pacienteRoutes from "./routes/paciente.routes";
 import { contactoRoutesFlat } from "./routes/contacto.routes";
 import { antecedenteRoutesFlat } from "./routes/antecedente.routes";
@@ -18,25 +21,46 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 async function iniciarServidor() {
   try {
-    const databaseUrl = await iniciarPostgresEmbebido();
+    console.log("Inicializando base de datos SQLite...");
+
+    const carpetaDatos = obtenerCarpetaDatos();
+
+    const rutaBaseDatos = path.join(
+      carpetaDatos,
+      "documed.db"
+    );
+
+    const databaseUrl = `file:${rutaBaseDatos}`;
+
+    console.log(`Base de datos: ${rutaBaseDatos}`);
+
     await ejecutarMigraciones(databaseUrl);
+
     inicializarPrisma(databaseUrl);
+
+    console.log("Base de datos SQLite lista.");
 
     const app = express();
 
-     app.use(
+    app.use(
       cors({
         origin: (origin, callback) => {
-          const origenesPermitidos = ["http://localhost:4200", "null"];
+          const origenesPermitidos = [
+            "http://localhost:4200",
+            "null",
+          ];
 
           if (!origin || origenesPermitidos.includes(origin)) {
             callback(null, true);
           } else {
-            callback(new Error("Origen no permitido por CORS"));
+            callback(
+              new Error("Origen no permitido por CORS")
+            );
           }
         },
       })
     );
+
     app.use(express.json());
 
     app.get("/", (_req: Request, res: Response) => {
@@ -54,22 +78,40 @@ async function iniciarServidor() {
     app.use("/examenes", examenRoutesFlat);
     app.use("/configuracion", configuracionRoutes);
 
-    app.use((err: Error, _req: Request, res: Response, _next: express.NextFunction) => {
-      console.error("Error no manejado:", err);
+    app.use(
+      (
+        err: Error,
+        _req: Request,
+        res: Response,
+        _next: express.NextFunction
+      ) => {
+        console.error("Error no manejado:", err);
 
-      if (err instanceof multer.MulterError) {
-        res.status(400).json({ error: `Error al procesar el archivo: ${err.message}` });
-        return;
+        if (err instanceof multer.MulterError) {
+          res.status(400).json({
+            error: `Error al procesar el archivo: ${err.message}`,
+          });
+
+          return;
+        }
+
+        res.status(500).json({
+          error: err.message || "Error interno del servidor",
+        });
       }
-
-      res.status(500).json({ error: err.message || "Error interno del servidor" });
-    });
+    );
 
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+      console.log(
+        `Servidor backend corriendo en http://localhost:${PORT}`
+      );
     });
   } catch (error) {
-    console.error("Error fatal al iniciar el servidor:", error);
+    console.error(
+      "Error fatal al iniciar el servidor:",
+      error
+    );
+
     process.exit(1);
   }
 }
@@ -83,12 +125,21 @@ async function apagarLimpio(origen: string) {
 
   apagando = true;
 
-  console.log(`\nSolicitud de cierre recibida (${origen}). Cerrando servidor...`);
+  console.log(
+    `\nSolicitud de cierre recibida (${origen}). Cerrando servidor...`
+  );
 
   try {
-    await detenerPostgresEmbebido();
+    const prisma = obtenerPrisma();
+
+    await prisma.$disconnect();
+
+    console.log("Conexión con SQLite cerrada correctamente.");
   } catch (error) {
-    console.error("Error al detener PostgreSQL embebido:", error);
+    console.error(
+      "Error al cerrar la conexión con SQLite:",
+      error
+    );
   } finally {
     process.exit(0);
   }
@@ -112,7 +163,15 @@ process.on("SIGTERM", () => {
 
 process.on("uncaughtException", async (error) => {
   console.error("Excepción no capturada:", error);
-  await detenerPostgresEmbebido();
+
+  try {
+    const prisma = obtenerPrisma();
+
+    await prisma.$disconnect();
+  } catch {
+    // Si Prisma todavía no se inicializó, simplemente salimos.
+  }
+
   process.exit(1);
 });
 

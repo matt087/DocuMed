@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db{
-    provider = "postgresql"
+    provider = "sqlite"
 }
 
 // =========================================
@@ -16,7 +16,7 @@ model Paciente {
     nombres                 String
     apellidos               String
     fecha_nacimiento        DateTime
-    sexo                    String      @db.Char(1)  
+    sexo                    String       
     cedula                  String?     @unique
     direccion               String
     telefono                String
@@ -80,12 +80,12 @@ model Antecedente{
 model Consulta{
     id_consulta             Int         @id @default(autoincrement())
     fecha                   DateTime
-    peso                    Decimal     @db.Decimal(5,2)    //kg
-    talla                   Decimal     @db.Decimal(5,2)    //cm
+    peso                    Decimal    //kg
+    talla                   Decimal    //cm
     presion_sistolica       Int
     presion_diastolica      Int
-    temperatura             Decimal     @db.Decimal(4,2)    //°C
-    perimetro_cefalico      Decimal?     @db.Decimal(5,2)    //cm -> PC
+    temperatura             Decimal    //°C
+    perimetro_cefalico      Decimal?   //cm -> PC
     motivo_consulta         String                          //MC
     enfermedad_actual       String                          //EA
     examen_fisico           String                          //EF

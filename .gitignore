@@ -54,4 +54,5 @@ backend/config
 
 #Electron
 electron/resources-backend
-electron/backend.zip
+scripts/native-deps/node_modules/
+scripts/native-deps/package-lock.json

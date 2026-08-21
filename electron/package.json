@@ -12,20 +12,25 @@
   "build": {
     "appId": "com.documed.app",
     "productName": "DocuMed",
-     "files": [
+    "files": [
       "dist/**/*",
       "package.json",
       ".env"
     ],
     "extraResources": [
       {
-        "from": "backend.zip",
-        "to": "backend.zip"
+        "from": "resources-backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "../frontend/dist/frontend/browser",
         "to": "frontend/browser",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
@@ -49,7 +54,6 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "adm-zip": "^0.6.0",
     "dotenv": "^17.4.2"
   }
 }

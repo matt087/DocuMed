@@ -4,8 +4,6 @@ import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import { spawn, ChildProcess } from "child_process";
 import { esperarBackend } from "./esperar-backend";
 import fs from "fs";
-import AdmZip from "adm-zip";
-
 
 app.setName("DocuMed");
 
@@ -33,41 +31,6 @@ function obtenerVariableRequerida(nombre: string): string {
   return valor;
 }
 
-function obtenerRutaBackendRuntime(): string {
-  return path.join(app.getPath("userData"), "backend-runtime");
-}
-
-function asegurarBackendExtraido(): string {
-  const rutaRuntime = obtenerRutaBackendRuntime();
-  const rutaMarcaVersion = path.join(rutaRuntime, ".version");
-  const versionActual = app.getVersion();
-
-  const yaExtraidoYActualizado =
-    fs.existsSync(rutaMarcaVersion) &&
-    fs.readFileSync(rutaMarcaVersion, "utf-8").trim() === versionActual;
-
-  if (yaExtraidoYActualizado) {
-    escribirLog(`Backend ya extraído para la versión ${versionActual}, reutilizando.`);
-    return rutaRuntime;
-  }
-
-  escribirLog(`Extrayendo backend (versión ${versionActual})...`);
-
-  if (fs.existsSync(rutaRuntime)) {
-    fs.rmSync(rutaRuntime, { recursive: true, force: true });
-  }
-  fs.mkdirSync(rutaRuntime, { recursive: true });
-
-  const rutaZip = path.join(process.resourcesPath, "backend.zip");
-  const zip = new AdmZip(rutaZip);
-  zip.extractAllTo(rutaRuntime, true);
-
-  fs.writeFileSync(rutaMarcaVersion, versionActual, "utf-8");
-  escribirLog("Backend extraído correctamente.");
-
-  return rutaRuntime;
-}
-
 const BACKEND_URL_HEALTHCHECK = obtenerVariableRequerida("BACKEND_URL_HEALTHCHECK");
 const FRONTEND_URL_DEV = obtenerVariableRequerida("FRONTEND_URL_DEV");
 
@@ -82,13 +45,39 @@ function iniciarProcesoBackend(): ChildProcess {
   let argumentosNode: string[];
 
   if (app.isPackaged) {
-    rutaBackend = asegurarBackendExtraido();
-    const rutaEntryBackend = path.join(rutaBackend, "dist", "app.js");
-    argumentosNode = [rutaEntryBackend];
+    rutaBackend = path.join(
+      process.resourcesPath,
+      "backend"
+    );
+
+    const rutaEntryBackend = path.join(
+      rutaBackend,
+      "dist",
+      "app.js"
+    );
+
+    argumentosNode = [
+      rutaEntryBackend
+    ];
   } else {
-    rutaBackend = path.join(__dirname, "..", "..", "backend");
-    const rutaEntryBackend = path.join(rutaBackend, "src", "app.ts");
-    argumentosNode = ["--import", "tsx", rutaEntryBackend];
+    rutaBackend = path.join(
+      __dirname,
+      "..",
+      "..",
+      "backend"
+    );
+
+    const rutaEntryBackend = path.join(
+      rutaBackend,
+      "src",
+      "app.ts"
+    );
+
+    argumentosNode = [
+      "--import",
+      "tsx",
+      rutaEntryBackend
+    ];
   }
 
   escribirLog(`Iniciando backend desde: ${rutaBackend}`);
@@ -102,19 +91,31 @@ function iniciarProcesoBackend(): ChildProcess {
         ...process.env,
         ELECTRON_RUN_AS_NODE: "1",
         DOCUMED_DATOS_DIR: rutaDatosUsuario,
+        NODE_PATH: path.join(rutaBackend, "deps-nativas"),
       },
+      stdio: ["pipe", "pipe", "pipe"],
     }
   );
 
-  proceso.stdout?.on("data", (data) => escribirLog(`[backend] ${data.toString().trim()}`));
-  proceso.stderr?.on("data", (data) => escribirLog(`[backend] ${data.toString().trim()}`));
+  proceso.stdout?.on("data", (data) =>
+    escribirLog(`[backend] ${data.toString().trim()}`)
+  );
+
+  proceso.stderr?.on("data", (data) =>
+    escribirLog(`[backend] ${data.toString().trim()}`)
+  );
 
   proceso.on("exit", (codigo) => {
-    escribirLog(`El proceso del backend terminó con código ${codigo}`);
+    escribirLog(
+      `El proceso del backend terminó con código ${codigo}`
+    );
   });
 
   proceso.on("error", (error) => {
-    registrarError("Error al spawnear el proceso del backend", error);
+    registrarError(
+      "Error al spawnear el proceso del backend",
+      error
+    );
   });
 
   return proceso;
